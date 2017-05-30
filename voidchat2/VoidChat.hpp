@@ -28,7 +28,6 @@ public:
 	void Main();
 
 private:
-	//sf::VideoMode(250, 300), "VoidChat 2.0.0", sf::Style::Close);
 	std::vector<std::string> messages;
 	std::vector<std::string> chatHistory;
 	sf::Font font;
