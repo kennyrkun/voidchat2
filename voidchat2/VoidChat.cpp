@@ -18,14 +18,19 @@ VoidChat::~VoidChat()
 
 void VoidChat::setIsTyping(bool typing)
 {
-	// sendbutton-default = 125, 125, 125
-	// sendbutton-useable = 190, 190, 190
-
 	if (typing)
+	{
 		sendButton.setFillColor(sf::Color(190, 190, 190));
+
+		isClientTyping = true;
+	}
 	else
+	{
 //		sendButton.setFillColor(sf::Color(125, 125, 125));
 		sendButton.setFillColor(sf::Color(190, 190, 190, 50));
+
+		isClientTyping = false;
+	}
 }
 
 void VoidChat::Init()
@@ -37,42 +42,24 @@ void VoidChat::Init()
 	std::cout << std::endl;
 
 	{
-		{
-			std::cout << "input box" << std::endl;
-			inputBox.setSize(sf::Vector2f(programWindow.getSize().x, 35));
-			inputBox.setOrigin(sf::Vector2f(inputBox.getLocalBounds().width / 2, inputBox.getLocalBounds().height / 2));
-
-			sf::Vector2f pos;
-			pos.x = programWindow.getSize().x / 2;
-			pos.y = programWindow.getSize().y - inputBox.getLocalBounds().height / 2;
-
-			inputBox.setPosition(pos);
-			inputBox.setFillColor(sf::Color(100, 100, 100));
-		}
+		std::cout << "input box" << std::endl;
+		inputBox.setSize(sf::Vector2f(250.0f, 36.0f));
+		inputBox.setOrigin(sf::Vector2f(inputBox.getLocalBounds().width / 2.0f, inputBox.getLocalBounds().height / 2.0f));
+		inputBox.setPosition(sf::Vector2f(programWindow.getSize().x / 2.0f, programWindow.getSize().y - inputBox.getLocalBounds().height / 2.0f));
+		inputBox.setFillColor(sf::Color(100, 100, 100));
 
 		std::cout << "send button" << std::endl;
 		sendButton.setRadius(10);
-		sendButton.setOrigin(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2);
-		sendButton.setPosition(230, 280);
-		sendButton.setFillColor(sf::Color(125, 125, 125));
+		sendButton.setOrigin(sf::Vector2f(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2));
+		sendButton.setPosition(sf::Vector2f((inputBox.getPosition().x * 2) - 20.0f, inputBox.getPosition().y));
 
 		if (sendButtonTexture.loadFromFile("resource\\textures\\sendbutton.png"))
 		{
-			sendButton.setFillColor(sf::Color(125, 125, 125));
 			sendButton.setTexture(&sendButtonTexture);
+			sendButton.setFillColor(sf::Color(190, 190, 190, 50));
 		}
 
-		std::cout << "menu button" << std::endl;
-		menuButton.setSize(sf::Vector2f(25, 25));
-		menuButton.setPosition(0, 10);
-		menuButton.setFillColor(sf::Color(100, 100, 100));
-
-		std::cout << "speak button" << std::endl;
-		speakButton.setScale(100, 100);
-		speakButton.setPosition(0, 0);
-		speakButton.setFillColor(sf::Color::White);
-
-		std::cout << "\ndone!" << std::endl;
+		std::cout << "done!\n" << std::endl;
 	} // ui
 
 	{ // text
@@ -81,40 +68,40 @@ void VoidChat::Init()
 		{ // font
 			std::cout << "loading font" << std::endl;
 
-			if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf"))
-			{
-				std::cout << "failed to load font" << std::endl; abort();
-			}
+			if (!font.loadFromFile("C:\\Windows\\Fonts\\Arial.ttf"))
+				abort();
 		} // font
 
 		std::cout << "input box text" << std::endl;
 		inputBoxText.setFont(font);
 		inputBoxText.setString("type a message");
 		inputBoxText.setCharacterSize(14);
+		inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
+		inputBoxText.setPosition(sf::Vector2f(5, inputBox.getPosition().y));
 		inputBoxText.setFillColor(sf::Color::White);
-		inputBoxText.setPosition(4, 276);
-		inputBoxText.setPosition(4, inputBox.getPosition().y);
 
-		/* TODO: REDO WHEN CHAT HISTORY WORKS.
 		std::cout << "typing text" << std::endl;
-		typing.setFont(font);
-		typing.setString("name" " is typing");
-		typing.setCharacterSize(12);
-		typing.setFillColor(sf::Color::White);
-		typing.setPosition(4, 258);
-		*/
+		typingIdicator.setFont(font);
+		typingIdicator.setString("name" " is typing");
+		typingIdicator.setCharacterSize(12);
+		typingIdicator.setOrigin(sf::Vector2f(typingIdicator.getLocalBounds().width / 2.0f, typingIdicator.getLocalBounds().height / 2.0f));
+		
+		std::cout << inputBox.getPosition().y;
+
+		typingIdicator.setPosition(sf::Vector2f((typingIdicator.getLocalBounds().width / 2.0f) + 4.0f, inputBox.getPosition().y - 24.0f));
+		typingIdicator.setFillColor(sf::Color::White);
 
 		std::cout << "chat history" << std::endl;
 		messagePos1.setFont(font);
 		messagePos1.setCharacterSize(14);
 		messagePos1.setFillColor(sf::Color::White);
-		messagePos1.setPosition(4, 235);
+		messagePos1.setPosition(sf::Vector2f(5, inputBox.getPosition().y - 50));
 
-		messagePos2.setFont(font);
-		messagePos2.setCharacterSize(14);
-		messagePos2.setPosition(4, 215);
+		//messagePos2.setFont(font);
+		//messagePos2.setCharacterSize(14);
+		//messagePos2.setPosition(5, 215);
 
-		std::cout << "\ndone!" << std::endl;
+		//std::cout << "done!\n" << std::endl;
 	} // text
 
 	std::cout << "finished." << std::endl;
@@ -126,17 +113,15 @@ void VoidChat::Render()
 
 	// ui elements
 	programWindow.draw(background);
+	if (isClientTyping)
+		programWindow.draw(typingIdicator);
 	programWindow.draw(inputBox);
 	programWindow.draw(sendButton);
-	programWindow.draw(speakButton);
-//	programWindow.draw(menubutton);
-
-	// text
 	programWindow.draw(inputBoxText);
 
 	// TODO: loop this
 	programWindow.draw(messagePos1);
-
+	
 	programWindow.display();
 }
 

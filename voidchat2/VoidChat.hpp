@@ -32,13 +32,12 @@ private:
 	std::vector<std::string> chatHistory;
 	sf::Font font;
 	sf::Text inputBoxText;
+	sf::Text typingIdicator;
 	sf::Text messagePos1;
 	sf::Text messagePos2;
 	sf::RectangleShape background;
 	sf::RectangleShape inputBox;
-	sf::RectangleShape menuButton;
 	sf::CircleShape sendButton;
-	sf::CircleShape speakButton;
 	sf::Texture sendButtonTexture;
 
 	bool sendMessageToServer(std::string message);
