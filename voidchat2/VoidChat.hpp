@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 
-#define CVERSION "2.1.0"
-#define SVERSION "2.0.0"
+#define CVERSION "2.2.0"
 
 class VoidChat
 {
@@ -17,10 +16,10 @@ public:
 	~VoidChat();
 
 	std::string clientUsername = "Guest";
-	sf::RenderWindow programWindow;
+	sf::RenderWindow window;
 	bool isClientTyping;
 
-	void sortMessages(std::string message);
+//	void sortMessages(std::string message);
 	void setIsTyping(bool typing);
 	void Init();
 	void Update(sf::Event &e);
@@ -28,17 +27,15 @@ public:
 	void Main();
 
 private:
-	std::vector<std::string> messages;
-	std::vector<std::string> chatHistory;
-	sf::Font font;
-	sf::Text inputBoxText;
-	sf::Text typingIdicator;
-	sf::Text messagePos1;
-	sf::Text messagePos2;
+	std::vector<sf::Text> messages;
+	sf::Font		   font;
+	sf::Text		   inputBoxText;
+	sf::Text		   typingIdicator;
 	sf::RectangleShape background;
 	sf::RectangleShape inputBox;
-	sf::CircleShape sendButton;
-	sf::Texture sendButtonTexture;
+	sf::CircleShape	   sendButton;
+	sf::Texture        sendButtonTexture;
+	sf::View           scrollableView;
 
 	bool sendMessageToServer(std::string message);
 };

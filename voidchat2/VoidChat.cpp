@@ -35,28 +35,43 @@ void VoidChat::setIsTyping(bool typing)
 
 void VoidChat::Init()
 {
-	programWindow.create(sf::VideoMode(250, 350), ("VoidChat " CVERSION), sf::Style::Close);
-	programWindow.setVerticalSyncEnabled(true);
+	window.create(sf::VideoMode(250, 350), ("VoidChat " CVERSION), sf::Style::Close);
+	window.setVerticalSyncEnabled(true); // just using vsync istead of a fixed timestep because it's a chat program, it doesn't need a timestep.
+	
+	scrollableView.setSize(window.getDefaultView().getSize());
+	scrollableView.setCenter(window.getDefaultView().getCenter());
 
 	std::cout << "initializing UI" << std::endl;
 	std::cout << std::endl;
 
 	{
-		std::cout << "input box" << std::endl;
-		inputBox.setSize(sf::Vector2f(250.0f, 36.0f));
-		inputBox.setOrigin(sf::Vector2f(inputBox.getLocalBounds().width / 2.0f, inputBox.getLocalBounds().height / 2.0f));
-		inputBox.setPosition(sf::Vector2f(programWindow.getSize().x / 2.0f, programWindow.getSize().y - inputBox.getLocalBounds().height / 2.0f));
-		inputBox.setFillColor(sf::Color(100, 100, 100));
-
-		std::cout << "send button" << std::endl;
-		sendButton.setRadius(10);
-		sendButton.setOrigin(sf::Vector2f(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2));
-		sendButton.setPosition(sf::Vector2f((inputBox.getPosition().x * 2) - 20.0f, inputBox.getPosition().y));
-
-		if (sendButtonTexture.loadFromFile("resource\\textures\\sendbutton.png"))
 		{
-			sendButton.setTexture(&sendButtonTexture);
-			sendButton.setFillColor(sf::Color(190, 190, 190, 50));
+			std::cout << "input box" << std::endl;
+			inputBox.setSize(sf::Vector2f(250.0f, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
+			inputBox.setOrigin(sf::Vector2f(inputBox.getLocalBounds().width / 2.0f, inputBox.getLocalBounds().height / 2.0f));
+
+			{ sf::Vector2f pos;
+			pos.x = static_cast<int>(window.getSize().x / 2.0f);
+			pos.y = static_cast<int>(window.getSize().y - (inputBox.getLocalBounds().height / 2.0f));
+			inputBox.setPosition(pos); }
+
+			inputBox.setFillColor(sf::Color(100, 100, 100));
+		}
+
+		{
+			std::cout << "send button" << std::endl;
+			sendButton.setRadius(10);
+			sendButton.setOrigin(sf::Vector2f(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2));
+
+			{ sf::Vector2f pos;
+			pos.x = static_cast<int>((inputBox.getPosition().x * 2) - 20.0f);
+			pos.y = static_cast<int>(inputBox.getPosition().y);
+			sendButton.setPosition(pos); }
+
+			if (sendButtonTexture.loadFromFile("resource\\textures\\sendbutton.png"))
+				sendButton.setTexture(&sendButtonTexture);
+			else
+				sendButton.setFillColor(sf::Color(190, 190, 190, 50));
 		}
 
 		std::cout << "done!\n" << std::endl;
@@ -72,34 +87,35 @@ void VoidChat::Init()
 				abort();
 		} // font
 
-		std::cout << "input box text" << std::endl;
-		inputBoxText.setFont(font);
-		inputBoxText.setString("type a message");
-		inputBoxText.setCharacterSize(14);
-		inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
-		inputBoxText.setPosition(sf::Vector2f(5, inputBox.getPosition().y));
-		inputBoxText.setFillColor(sf::Color::White);
+		{
+			std::cout << "input box text" << std::endl;
+			inputBoxText.setFont(font);
+			inputBoxText.setString("type a message");
+			inputBoxText.setCharacterSize(14);
+			inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
 
-		std::cout << "typing text" << std::endl;
-		typingIdicator.setFont(font);
-		typingIdicator.setString("name" " is typing");
-		typingIdicator.setCharacterSize(12);
-		typingIdicator.setOrigin(sf::Vector2f(typingIdicator.getLocalBounds().width / 2.0f, typingIdicator.getLocalBounds().height / 2.0f));
-		
-		std::cout << inputBox.getPosition().y;
+			{ sf::Vector2f pos;
+			pos.x = 5;
+			pos.y = static_cast<int>(inputBox.getPosition().y); 
+			inputBoxText.setPosition(pos); }
 
-		typingIdicator.setPosition(sf::Vector2f((typingIdicator.getLocalBounds().width / 2.0f) + 4.0f, inputBox.getPosition().y - 24.0f));
-		typingIdicator.setFillColor(sf::Color::White);
+			inputBoxText.setFillColor(sf::Color::White);
+		}
 
-		std::cout << "chat history" << std::endl;
-		messagePos1.setFont(font);
-		messagePos1.setCharacterSize(14);
-		messagePos1.setFillColor(sf::Color::White);
-		messagePos1.setPosition(sf::Vector2f(5, inputBox.getPosition().y - 50));
+		{
+			std::cout << "typing text" << std::endl;
+			typingIdicator.setFont(font);
+			typingIdicator.setString("name" " is typing");
+			typingIdicator.setCharacterSize(12);
+			typingIdicator.setOrigin(sf::Vector2f(typingIdicator.getLocalBounds().width / 2.0f, typingIdicator.getLocalBounds().height / 2.0f));
 
-		//messagePos2.setFont(font);
-		//messagePos2.setCharacterSize(14);
-		//messagePos2.setPosition(5, 215);
+			{ sf::Vector2f pos;
+			pos.x = static_cast<int>((typingIdicator.getLocalBounds().width / 2.0f) + 4.0f);
+			pos.y = static_cast<int>(inputBox.getPosition().y - 24.0f);
+			typingIdicator.setPosition(pos); }
+
+			typingIdicator.setFillColor(sf::Color::White);
+		}
 
 		//std::cout << "done!\n" << std::endl;
 	} // text
@@ -109,20 +125,25 @@ void VoidChat::Init()
 
 void VoidChat::Render()
 {
-	programWindow.clear(sf::Color(58, 58, 58));
+	window.clear(sf::Color(58, 58, 58));
+
+	window.setView(scrollableView);
+
+//	for (size_t i = messages.size(); i > 0; i--)
+	for (size_t i = 0; i < messages.size(); i++)
+	{
+		window.draw(messages[i]);
+	}
 
 	// ui elements
-	programWindow.draw(background);
+	window.setView(window.getDefaultView());
 	if (isClientTyping)
-		programWindow.draw(typingIdicator);
-	programWindow.draw(inputBox);
-	programWindow.draw(sendButton);
-	programWindow.draw(inputBoxText);
-
-	// TODO: loop this
-	programWindow.draw(messagePos1);
+		window.draw(typingIdicator);
+	window.draw(inputBox);
+	window.draw(sendButton);
+	window.draw(inputBoxText);
 	
-	programWindow.display();
+	window.display();
 }
 
 void VoidChat::Update(sf::Event &e)
@@ -135,24 +156,36 @@ void VoidChat::Update(sf::Event &e)
 
 		if (e.text.unicode == 13) // return key
 		{
-			if (message.length() != 0) // can't sned nothing, can we?
+			if (message.length() != 0) // can't send nothing, can we?
 			{
-//				std::cout << message << std::endl;
+				std::cout << "sent \"" << message << "\" (length " << message.length() << ")" << std::endl; // send message comes here
 
-//				chat_history.front() = message;
+				sf::Text newMessage;
+				newMessage.setString(message);
+				newMessage.setFont(font);
+				newMessage.setCharacterSize(18);
+
+				if (!messages.empty())
+				{
+					newMessage.setPosition(8, messages.back().getPosition().y + 26);
+					scrollableView.move(0, 26);
+				}
+				else
+				{
+					newMessage.setPosition(8, inputBox.getPosition().y - 60);
+				}
 
 				if (!sendMessageToServer(message))
 				{
 					std::cout << "failed to send message" << std::endl;
-					messagePos1.setFillColor(sf::Color(sf::Color::Red));
+					newMessage.setFillColor(sf::Color(255, 255, 255, 100));
 				}
 				else
 				{
-					std::cout << "sent \"" << message << "\" (length " << message.length() << ")" << std::endl; // send message comes here
-					messagePos1.setFillColor(sf::Color(200, 200, 200));
-
-					messages.push_back(message);
+					newMessage.setFillColor(sf::Color(200, 200, 200, 255));
 				}
+
+				messages.push_back(newMessage);
 			}
 			else // length != 0
 			{
@@ -176,25 +209,31 @@ void VoidChat::Update(sf::Event &e)
 		if (message.length() == 0)
 			setIsTyping(false);
 	}
-
-	if (!messages.empty()) // what was this for?
-	{
-		messagePos1.setString(messages.back());
-		messagePos2.setString(messages.back());
-	}
 }
 
 void VoidChat::Main()
 {
-	while (programWindow.isOpen())
+	while (window.isOpen())
 	{
 		sf::Event event;
-		while (programWindow.pollEvent(event))
+		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed || event.key.code == sf::Keyboard::Escape)
+			if (event.type == sf::Event::EventType::Closed)
 			{
-				programWindow.close();
-				exit(0);
+				window.close();
+			}
+			else if (event.type == sf::Event::EventType::MouseWheelMoved)
+			{
+				//TODO: implement scrollbar and scrollstep
+
+				if (event.mouseWheel.delta > 0) // down
+				{
+					scrollableView.move(0, -26);
+				}
+				else if (event.mouseWheel.delta < 0) // up
+				{
+					scrollableView.move(0, 20);
+				}
 			}
 			else if (event.type == sf::Event::TextEntered)
 			{
@@ -212,94 +251,3 @@ bool VoidChat::sendMessageToServer(std::string message)
 {
 	return true; // server not implemented
 }
-
-/*
-// ytho
-#define P(MESSAGE) std::cout << #MESSAGE << std::endl;
-
-namespace chat
-{
-		void sort_messages(std::string message)
-	{
-		messagePos1.setString(inputBoxText.getString());
-
-		if (messagePos2.getString() != messagePos1.getString())
-		{
-			messagePos2.setString(messagePos1.getString());
-		}
-	}
-
-	void istyping(bool typing)
-	{
-		// sendbutton-default = 125, 125, 125
-		// sendbutton-useable = 190, 190, 190
-
-		if (typing)
-		{
-			ui::sendButton.setFillColor(sf::Color(190, 190, 190));
-		}
-		else
-		{
-			ui::sendButton.setFillColor(sf::Color(125, 125, 125));
-		}
-	}
-
-	void update()
-	{
-		istyping(true);
-
-		if (event.text.unicode < 128) // something on a keyboard
-		{
-			std::string message = chat::ui::inputBoxText.getString(); // temp string
-
-			if (event.text.unicode == 13) // return key
-			{
-				if (message.length() != 0) // can't sned nothing, can we?
-				{
-					std::cout << message << std::endl;
-
-					//					chat_history.front() = message;
-
-					if (!message_send(message))
-					{
-						std::cout << "failed to send message" << std::endl;
-						chat::ui::messagePos1.setFillColor(sf::Color(sf::Color::Red));
-					}
-					else
-					{
-						std::cout << "sending message \"" << message << "\" of length " << message.length() << std::endl; // send message comes here
-						chat::ui::messagePos1.setFillColor(sf::Color(200, 200, 200));
-
-						messages.push_back(message);
-					}
-				}
-				else // length != 0
-				{
-					std::cout << "cannot send an empty message" << std::endl;
-				}
-
-				message.clear();
-			}
-			else if (event.text.unicode == 8) // backspace
-			{
-				if (message.length() != 0) // can't remove nothing
-					message.pop_back();
-			}
-			else // regular characters
-			{
-				message += static_cast<char>(event.text.unicode);
-			}
-
-			chat::ui::inputBoxText.setString(message); // we should see our changes, yes?
-
-			if (message.length() == 0)
-				istyping(false);
-		}
-
-		if (!messages.empty())
-		{
-			ui::messagePos1.setString(messages.back());
-			ui::messagePos2.setString(messages.back());
-		}
-	}
-}*/
