@@ -15,16 +15,18 @@ public:
 	VoidChat();
 	~VoidChat();
 
+	void Init();
+
 	std::string clientUsername = "Guest";
 	sf::RenderWindow window;
 	bool isClientTyping;
 
 //	void sortMessages(std::string message);
 	void setIsTyping(bool typing);
-	void Init();
-	void Update(sf::Event &e);
-	void Render();
-	void Main();
+
+	void HandleEvents();
+	void Update();
+	void Draw();
 
 private:
 	std::vector<sf::Text> messages;
@@ -37,7 +39,11 @@ private:
 	sf::Texture        sendButtonTexture;
 	sf::View           scrollableView;
 
-	bool sendMessageToServer(std::string message);
+	int onSend(std::string message);
+//	int onSend(sf::Event& event);
+	int onRecieve(sf::Event& event);
+	int onButtonPressed(sf::Event& event);
+	int onQuit(sf::Event& event);
 };
 
 #endif /* VOIDCHAT_CLIENT_HPP */

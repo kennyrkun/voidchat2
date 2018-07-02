@@ -4,6 +4,13 @@ int main()
 {
 	VoidChat chat;
 	chat.Init();
-	chat.Main();
+
+	while (chat.window.isOpen()) // TODO: bool running
+	{
+		chat.HandleEvents();
+		chat.Update();
+		chat.Draw();
+	}
+
 	return 0;
 }

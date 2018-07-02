@@ -2,8 +2,6 @@
 
 #include <string>
 
-#define D(MESSAGE) std::cout << #MESSAGE << std::endl;
-
 // public:
 
 VoidChat::VoidChat()
@@ -123,30 +121,75 @@ void VoidChat::Init()
 	std::cout << "finished." << std::endl;
 }
 
-void VoidChat::Render()
+void VoidChat::HandleEvents()
+{
+	sf::Event event;
+	while (window.pollEvent(event))
+	{
+		if (event.type == sf::Event::EventType::Closed)
+		{
+			window.close();
+		}
+		//TODO: resize events
+		else if (event.type == sf::Event::EventType::MouseWheelMoved)
+		{
+			//TODO: implement scrollbar and scrollstep
+
+			if (event.mouseWheel.delta > 0) // down
+			{
+				scrollableView.move(0, -26);
+			}
+			else if (event.mouseWheel.delta < 0) // up
+			{
+				scrollableView.move(0, 20);
+			}
+		}
+		else if (event.type == sf::Event::TextEntered)
+		{
+			onButtonPressed(event);
+		}
+	}
+}
+
+void VoidChat::Update()
+{
+
+}
+
+void VoidChat::Draw()
 {
 	window.clear(sf::Color(58, 58, 58));
 
 	window.setView(scrollableView);
 
-//	for (size_t i = messages.size(); i > 0; i--)
 	for (size_t i = 0; i < messages.size(); i++)
-	{
 		window.draw(messages[i]);
-	}
 
 	// ui elements
 	window.setView(window.getDefaultView());
 	if (isClientTyping)
 		window.draw(typingIdicator);
+
 	window.draw(inputBox);
 	window.draw(sendButton);
 	window.draw(inputBoxText);
-	
+
 	window.display();
 }
 
-void VoidChat::Update(sf::Event &e)
+// private:
+
+int VoidChat::onSend(std::string message)
+{
+	return true; // server not implemented
+}
+
+int VoidChat::onRecieve(sf::Event & event)
+{
+	return 0;
+}
+
+int VoidChat::onButtonPressed(sf::Event &e)
 {
 	setIsTyping(true);
 
@@ -175,7 +218,7 @@ void VoidChat::Update(sf::Event &e)
 					newMessage.setPosition(8, inputBox.getPosition().y - 60);
 				}
 
-				if (!sendMessageToServer(message))
+				if (!onSend(message))
 				{
 					std::cout << "failed to send message" << std::endl;
 					newMessage.setFillColor(sf::Color(255, 255, 255, 100));
@@ -209,45 +252,11 @@ void VoidChat::Update(sf::Event &e)
 		if (message.length() == 0)
 			setIsTyping(false);
 	}
+
+	return 0;
 }
 
-void VoidChat::Main()
+int VoidChat::onQuit(sf::Event & event)
 {
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::EventType::Closed)
-			{
-				window.close();
-			}
-			else if (event.type == sf::Event::EventType::MouseWheelMoved)
-			{
-				//TODO: implement scrollbar and scrollstep
-
-				if (event.mouseWheel.delta > 0) // down
-				{
-					scrollableView.move(0, -26);
-				}
-				else if (event.mouseWheel.delta < 0) // up
-				{
-					scrollableView.move(0, 20);
-				}
-			}
-			else if (event.type == sf::Event::TextEntered)
-			{
-				Update(event);
-			}
-		}
-
-		Render();
-	}
-}
-
-// private:
-
-bool VoidChat::sendMessageToServer(std::string message)
-{
-	return true; // server not implemented
+	return 0;
 }
