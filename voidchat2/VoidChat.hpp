@@ -17,6 +17,9 @@ public:
 
 	void Init();
 
+	// showWindow();
+	// hideWinodw();
+
 	std::string clientUsername = "Guest";
 	sf::RenderWindow window;
 	bool isClientTyping;
@@ -28,6 +31,8 @@ public:
 	void Update();
 	void Draw();
 
+	bool isRunning() { return running; }
+
 private:
 	std::vector<sf::Text> messages;
 	sf::Font		   font;
@@ -38,6 +43,8 @@ private:
 	sf::CircleShape	   sendButton;
 	sf::Texture        sendButtonTexture;
 	sf::View           scrollableView;
+
+	bool running;
 
 	int onSend(std::string message);
 //	int onSend(sf::Event& event);

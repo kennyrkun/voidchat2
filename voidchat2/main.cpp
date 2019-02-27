@@ -5,7 +5,7 @@ int main()
 	VoidChat chat;
 	chat.Init();
 
-	while (chat.window.isOpen()) // TODO: bool running
+	while (chat.isRunning()) // TODO: bool running
 	{
 		chat.HandleEvents();
 		chat.Update();

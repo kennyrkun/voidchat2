@@ -153,12 +153,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Message.cpp" />
+    <ClCompile Include="VisualMessage.cpp" />
     <ClCompile Include="VoidChat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resource\textures\sendbutton.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Message.hpp" />
+    <ClInclude Include="VisualMessage.hpp" />
     <ClInclude Include="VoidChat.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
