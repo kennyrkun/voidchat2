@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.902
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "voidchat2", "voidchat2\voidchat2.vcxproj", "{7666DF65-B848-4254-8CB1-50C544472E64}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "voidchatserver", "voidchatserver\voidchatserver.vcxproj", "{AB8558CB-5E8A-4D14-91D6-D28851967BDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,19 @@ Global
 		{7666DF65-B848-4254-8CB1-50C544472E64}.Release|x64.Build.0 = Release|x64
 		{7666DF65-B848-4254-8CB1-50C544472E64}.Release|x86.ActiveCfg = Release|Win32
 		{7666DF65-B848-4254-8CB1-50C544472E64}.Release|x86.Build.0 = Release|Win32
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Debug|x64.ActiveCfg = Debug|x64
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Debug|x64.Build.0 = Debug|x64
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Debug|x86.ActiveCfg = Debug|Win32
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Debug|x86.Build.0 = Debug|Win32
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Release|x64.ActiveCfg = Release|x64
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Release|x64.Build.0 = Release|x64
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Release|x86.ActiveCfg = Release|Win32
+		{AB8558CB-5E8A-4D14-91D6-D28851967BDA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FBC70226-B083-464F-87B6-2EAE86CB520D}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,62 @@
+#include <SFML/Network.hpp>
+
+#include <iostream>
+#include <vector>
+
+int main()
+{
+	std::cout << "VoidChatServer" << std::endl;
+
+	sf::TcpListener listener;
+
+	if (listener.listen(123) != sf::Socket::Status::Done)
+	{
+		std::cerr << "failed to bind listener to port" << std::endl;
+		abort();
+	}
+	else
+		std::cout << "Listener bound to port " << listener.getLocalPort() << std::endl;
+
+	sf::SocketSelector selector;
+	selector.add(listener);
+
+	std::cout << "this server's local ip address is: " << sf::IpAddress::getLocalAddress() << std::endl;
+	std::cout << "this server's public ip address is: " << sf::IpAddress::getPublicAddress() << std::endl;
+
+	bool running = true;
+
+	std::vector<sf::TcpSocket*> sockets;
+	
+	while (running)
+	{
+		if (selector.wait())
+		{
+			std::cout << "something is ready" << std::endl;
+
+			if (selector.isReady(listener))
+			{
+				std::cout << "listener is ready to accept a new client" << std::endl;
+
+				sf::TcpSocket* newSocket = new sf::TcpSocket;
+
+				if (listener.accept(*newSocket) == sf::Socket::Status::Done)
+				{
+					selector.add(*newSocket);
+					std::cout << "accepted a client" << std::endl;
+				}
+			}
+			else
+			{
+				for (auto& socket : sockets)
+				{
+					if (selector.isReady(*socket))
+					{
+						std::cout << "socket is ready" << std::endl;
+					}
+				}
+			}
+		}
+
+		sf::sleep(sf::milliseconds(100));
+	}
+}

@@ -3,11 +3,21 @@
 
 #include "Message.hpp"
 
-class VisualMessage : public Message
+#include <SFML/Graphics.hpp>
+
+class VisualMessage : public sf::Drawable
 {
 public:
 	VisualMessage();
 	~VisualMessage();
+
+	void setPosition();
+	void getPosition();
+
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+private:
+	Message message;
 };
 
 #endif // !VISUAL_MESSAGE_HPP

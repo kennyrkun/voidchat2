@@ -6,11 +6,7 @@
 class Message
 {
 public:
-	Message();
-	~Message();
-
-	int authorID;
-	int size;
+	std::string author;
 
 	std::string messageContent;
 };
