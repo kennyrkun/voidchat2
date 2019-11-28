@@ -119,6 +119,8 @@ void VoidChat::Init()
 	} // text
 
 	std::cout << "finished." << std::endl;
+
+	running = true;
 }
 
 void VoidChat::HandleEvents()
