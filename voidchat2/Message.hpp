@@ -8,10 +8,11 @@
 class Message
 {
 public:
+	Message();
 	Message(const std::string& author, const std::string& message);
 
 	std::string author;
-	std::string messageContent;
+	std::string content;
 
 	// TODO: time sent
 };
