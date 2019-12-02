@@ -18,6 +18,11 @@ sf::Packet& operator >>(sf::Packet& packet, Message& message)
 	return packet;
 }
 
+Message::Message()
+{
+	// nothing
+}
+
 Message::Message(const std::string& author, const std::string& message)
 {
 	this->author = author;
