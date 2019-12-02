@@ -360,12 +360,8 @@ std::string VoidChat::getTypingString()
 		typingString = remoteTypingUsers.front() + " is typing";
 	else if (remoteTypingUsers.size() == 2)
 		typingString = remoteTypingUsers.front() + " and " + remoteTypingUsers.back() + " are typing";
-	else if (remoteTypingUsers.size() >= 10)
-		typingString = "several people are typing";
-	else if (remoteTypingUsers.size() >= 3)
+	else if (remoteTypingUsers.size() == 3)
 	{
-		std::cout << "three or more" << std::endl;
-
 		int loops = 0;
 		for (auto& user : remoteTypingUsers)
 		{
@@ -381,6 +377,8 @@ std::string VoidChat::getTypingString()
 
 		std::cout << "new: " << typingString << std::endl;
 	}
+	else if (remoteTypingUsers.size() > 3)
+		typingString = "several people are typing";
 	else
 		typingString = "";
 
