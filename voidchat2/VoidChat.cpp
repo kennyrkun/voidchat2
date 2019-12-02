@@ -109,9 +109,20 @@ void VoidChat::Init()
 
 	std::cout << "finished." << std::endl;
 
+	std::ifstream getserver("./resource/server.cfg", std::ios::in | std::ios::binary);
+
+	if (!getserver.is_open())
+		abort();
+
+	std::string ip, port;
+	std::getline(getserver, ip);
+	std::getline(getserver, port);
+
+	char p = std::stoi(port);
+
 	socket = new sf::TcpSocket;
 
-	if (socket->connect(sf::IpAddress::LocalHost, 123) != sf::Socket::Status::Done)
+	if (socket->connect(sf::IpAddress(ip), p) != sf::Socket::Status::Done)
 	{
 		std::cerr << "fuck" << std::endl;
 		abort();

@@ -12,7 +12,8 @@ int main()
 	if (listener.listen(123) != sf::Socket::Status::Done)
 	{
 		std::cerr << "failed to bind listener to port" << std::endl;
-		abort();
+		return -1;
+//		abort();
 	}
 	else
 		std::cout << "Listener bound to port " << listener.getLocalPort() << std::endl;
