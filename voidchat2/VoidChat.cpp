@@ -201,12 +201,10 @@ void VoidChat::Draw()
 
 int VoidChat::onSendMessage(std::string message)
 {
-	sf::Packet packet;
-	packet << "outgoingMessage";
-	packet << clientUsername;
-	packet << message;
+	sf::Packet messagePacket;
+	messagePacket << Message(clientUsername, message);
 
-	return onSend(packet);
+	return onSend(messagePacket);
 }
 
 void VoidChat::onReceiveMessage(std::string author, std::string message)
