@@ -48,6 +48,9 @@ private:
 	sf::Texture        sendButtonTexture;
 	sf::View           scrollableView;
 
+	sf::SoundBuffer notificationSoundBuffer;
+	sf::Sound notificationSound;
+
 	bool running;
 
 	int onSendMessage(std::string message);

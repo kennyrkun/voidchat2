@@ -1,6 +1,8 @@
 #include "VoidChat.hpp"
 
 #include <string>
+#include <fstream>
+#include <cstdlib>
 
 // public:
 
@@ -11,7 +13,8 @@ VoidChat::VoidChat()
 
 VoidChat::~VoidChat()
 {
-	// nothing
+	socket->disconnect();
+	delete socket;
 }
 
 void VoidChat::setIsTyping(bool typing)
@@ -45,6 +48,12 @@ void VoidChat::Init()
 
 	{
 		{
+			std::cout << "sounds" << std::endl;
+			notificationSoundBuffer.loadFromFile("./resource/you_were_poked.wav");
+			notificationSound.setBuffer(notificationSoundBuffer);
+		}
+
+		{
 			std::cout << "input box" << std::endl;
 			inputBox.setSize(sf::Vector2f(250.0f, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
 			inputBox.setFillColor(sf::Color(100, 100, 100));
@@ -77,7 +86,7 @@ void VoidChat::Init()
 			std::cout << "loading font" << std::endl;
 
 			if (!font.loadFromFile("C:\\Windows\\Fonts\\Arial.ttf"))
-				abort();
+				std::abort();
 		} // font
 
 		{
@@ -203,6 +212,7 @@ int VoidChat::onSendMessage(std::string message)
 void VoidChat::onReceiveMessage(std::string author, std::string message)
 {
 	addMessage(author, message);
+	notificationSound.play();
 }
 
 int VoidChat::onStartTyping()
@@ -289,7 +299,7 @@ int VoidChat::onKeyPressed(sf::Event& event)
 			if (!onSendMessage(message))
 			{
 				std::cout << "failed to send message" << std::endl;
-//				newMessage.setFillColor(sf::Color::Red);
+				messages.back().setFillColor(sf::Color::Red);
 			}
 
 			message.clear();
