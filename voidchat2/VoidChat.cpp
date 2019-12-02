@@ -34,7 +34,7 @@ VoidChat::VoidChat()
 			inputBox.setFillColor(sf::Color(100, 100, 100));
 			inputBox.setPosition(sf::Vector2f(0, window.getSize().y - inputBox.getSize().y));
 		}
-
+		 
 		{
 			std::cout << "send button" << std::endl;
 			sendButton.setRadius(10);
@@ -42,7 +42,7 @@ VoidChat::VoidChat()
 
 			{ sf::Vector2f pos;
 			pos.x = static_cast<int>((inputBox.getPosition().x * 2) - 20.0f);
-			pos.y = static_cast<int>(inputBox.getPosition().y);
+			pos.y = static_cast<int>(inputBox.getPosition().y + (inputBox.getSize().y / 2));
 			sendButton.setPosition(pos); }
 
 			if (sendButtonTexture.loadFromFile("resource/textures/sendbutton.png"))
@@ -69,7 +69,7 @@ VoidChat::VoidChat()
 			inputBoxText.setFont(font);
 			inputBoxText.setCharacterSize(14);
 			inputBoxText.setString("type a message");
-			inputBoxText.setFillColor(sf::Color::White);
+			inputBoxText.setFillColor(sf::Color(200, 200, 200));
 
 			inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
 			inputBoxText.setPosition(sf::Vector2f(5, (window.getSize().y - (inputBox.getSize().y / 2))));
@@ -127,15 +127,25 @@ void VoidChat::setIsTyping(bool typing)
 {
 	if (typing)
 	{
+		inputBoxText.setString("");
+		inputBoxText.setFillColor(sf::Color::White);
+
 		sendButton.setFillColor(sf::Color(190, 190, 190));
 		onStartTyping();
 	}
 	else
 	{
+		std::cout << "message box is now empty" << std::endl;
+
+		inputBoxText.setString("type a message");
+		inputBoxText.setFillColor(sf::Color(100, 100, 100));
+
 //		sendButton.setFillColor(sf::Color(125, 125, 125));
 		sendButton.setFillColor(sf::Color(190, 190, 190, 50));
 		onStopTyping();
 	}
+
+	meTyping = typing;
 }
 
 void VoidChat::HandleEvents()
@@ -158,13 +168,9 @@ void VoidChat::HandleEvents()
 				scrollableView.move(0, 26);
 		}
 		else if (event.type == sf::Event::KeyPressed)
-		{
 			onKeyPressed(event);
-		}
 		else if (event.type == sf::Event::TextEntered)
-		{
 			onTextEntered(event);
-		}
 	}
 }
 
@@ -197,6 +203,9 @@ int VoidChat::onSendMessage(std::string message)
 {
 	sf::Packet messagePacket;
 	messagePacket << Message(clientUsername, message);
+
+	// TODO: only show this if send was successful
+	std::cout << "sent \"" << message << "\" (length " << message.length() << ")" << std::endl;
 
 	return onSend(messagePacket);
 }
@@ -258,6 +267,13 @@ int VoidChat::onNetworkIncoming()
 			}
 			else if (command == "incomingMessage")
 			{
+				/*
+				Message message;
+				packet >> message;
+
+				onReceiveMessage(message.author, message.content);
+				*/
+
 				std::string author;
 				std::string message;
 
@@ -280,39 +296,35 @@ int VoidChat::onKeyPressed(sf::Event& event)
 {
 	std::string message = inputBoxText.getString().toAnsiString();
 
+	if (!meTyping || message.size() <= 0)
+	{
+		std::cout << "skipping" << std::endl;
+		return -1;
+	}
+
 	if (event.key.code == sf::Keyboard::Key::Return)
 	{
 		if (message.length() != 0) // can't send nothing, can we?
+			return -1;
+
+		addMessage(clientUsername, message);
+
+		if (!onSendMessage(message))
 		{
-			std::cout << "sent \"" << message << "\" (length " << message.length() << ")" << std::endl; // send message comes here
-
-			addMessage(clientUsername, message);
-
-			if (!onSendMessage(message))
-			{
-				std::cout << "failed to send message" << std::endl;
-				messages.back().setFillColor(sf::Color::Red);
-			}
-
-			message.clear();
-			inputBoxText.setString(message);
-			setIsTyping(false);
+			std::cout << "failed to send message" << std::endl;
+			messages.back().setFillColor(sf::Color::Red);
 		}
-		else // length != 0
-			std::cout << "cannot send an empty message" << std::endl;
+
+		setIsTyping(false);
 	}
 	else if (event.key.code == sf::Keyboard::Key::Backspace) // backspace
 	{
-		bool wasAlreadyEmpty = message.empty();
-
-		if (message.length() != 0) // can't remove nothing
-			message.pop_back();
+		message.pop_back();
+		inputBoxText.setString(message);
 
 		// if the message is empty now, we have stopped typing
-		if (message.size() == 0 && !wasAlreadyEmpty)
+		if (message.size() == 0)
 			setIsTyping(false);
-
-		inputBoxText.setString(message);
 	}
 
 	return 0;
@@ -322,20 +334,22 @@ int VoidChat::onTextEntered(sf::Event& e)
 {
 	if (e.text.unicode < 128) // something on a keyboard
 	{
-		std::string message = inputBoxText.getString(); // temp string
-
-		if (e.text.unicode == 13) // return key (send key)
-			return -1;
-		else if (e.text.unicode == 8) // backspace
-			return -1;
-		else // regular characters
+		switch (e.text.unicode)
 		{
-			// if the message is empty when we start typing, we have started typing
-			if (message.size() == 0)
+		case 13: // return
+		case 8: // backspace
+			return -1;
+		default:
+		{
+			if (!meTyping)
 				setIsTyping(true);
+
+			std::string message = inputBoxText.getString(); // temp string
 
 			message += static_cast<char>(e.text.unicode);
 			inputBoxText.setString(message); // we should see our changes, yes?
+			break;
+		}
 		}
 	}
 

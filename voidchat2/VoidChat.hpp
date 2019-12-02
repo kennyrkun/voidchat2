@@ -37,6 +37,7 @@ public:
 
 private:
 	std::list<std::string> remoteTypingUsers;
+	bool meTyping = false;
 
 	std::vector<sf::Text> messages;
 	sf::Font		   font;
