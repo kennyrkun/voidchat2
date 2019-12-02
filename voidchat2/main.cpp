@@ -3,7 +3,6 @@
 int main()
 {
 	VoidChat chat;
-	chat.Init();
 
 	while (chat.isRunning()) // TODO: bool running
 	{

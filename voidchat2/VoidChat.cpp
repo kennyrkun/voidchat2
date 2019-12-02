@@ -1,45 +1,20 @@
 #include "VoidChat.hpp"
 
+#include "VisualMessage.hpp"
+#include "Message.hpp"
+
 #include <string>
 #include <fstream>
 #include <cstdlib>
 
-// public:
-
 VoidChat::VoidChat()
-{
-	// nothing
-}
-
-VoidChat::~VoidChat()
-{
-	socket->disconnect();
-	delete socket;
-}
-
-void VoidChat::setIsTyping(bool typing)
-{
-	if (typing)
-	{
-		sendButton.setFillColor(sf::Color(190, 190, 190));
-		onStartTyping();
-	}
-	else
-	{
-//		sendButton.setFillColor(sf::Color(125, 125, 125));
-		sendButton.setFillColor(sf::Color(190, 190, 190, 50));
-		onStopTyping();
-	}
-}
-
-void VoidChat::Init()
 {
 	std::cout << "username: ";
 	std::getline(std::cin, clientUsername);
 
 	window.create(sf::VideoMode(250, 350), ("VoidChat " CVERSION), sf::Style::Close);
 	window.setVerticalSyncEnabled(true); // just using vsync istead of a fixed timestep because it's a chat program, it doesn't need a timestep.
-	
+
 	scrollableView.setSize(window.getDefaultView().getSize());
 	scrollableView.setCenter(window.getDefaultView().getCenter());
 
@@ -142,6 +117,27 @@ void VoidChat::Init()
 	running = true;
 }
 
+VoidChat::~VoidChat()
+{
+	socket->disconnect();
+	delete socket;
+}
+
+void VoidChat::setIsTyping(bool typing)
+{
+	if (typing)
+	{
+		sendButton.setFillColor(sf::Color(190, 190, 190));
+		onStartTyping();
+	}
+	else
+	{
+//		sendButton.setFillColor(sf::Color(125, 125, 125));
+		sendButton.setFillColor(sf::Color(190, 190, 190, 50));
+		onStopTyping();
+	}
+}
+
 void VoidChat::HandleEvents()
 {
 	sf::Event event;
@@ -196,8 +192,6 @@ void VoidChat::Draw()
 
 	window.display();
 }
-
-// private:
 
 int VoidChat::onSendMessage(std::string message)
 {
