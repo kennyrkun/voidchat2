@@ -40,10 +40,8 @@ VoidChat::VoidChat()
 			sendButton.setRadius(10);
 			sendButton.setOrigin(sf::Vector2f(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2));
 
-			{ sf::Vector2f pos;
-			pos.x = static_cast<int>((inputBox.getPosition().x * 2) - 20.0f);
-			pos.y = static_cast<int>(inputBox.getPosition().y + (inputBox.getSize().y / 2));
-			sendButton.setPosition(pos); }
+			sf::Vector2f pos((inputBox.getPosition().x * 2) - 20.0f, 0);
+			sendButton.setPosition(pos);
 
 			if (sendButtonTexture.loadFromFile("resource/textures/sendbutton.png"))
 				sendButton.setTexture(&sendButtonTexture);
@@ -324,7 +322,10 @@ int VoidChat::onKeyPressed(sf::Event& event)
 
 		// if the message is empty now, we have stopped typing
 		if (message.size() == 0)
+		{
 			setIsTyping(false);
+			std::cout << "it's empty now" << std::endl;
+		}
 	}
 
 	return 0;
