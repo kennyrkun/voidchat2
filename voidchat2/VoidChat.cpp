@@ -24,7 +24,7 @@ VoidChat::VoidChat()
 	{
 		{
 			std::cout << "sounds" << std::endl;
-			notificationSoundBuffer.loadFromFile("./resource/you_were_poked.wav");
+			notificationSoundBuffer.loadFromFile("./resource/audio/you_were_poked.wav");
 			notificationSound.setBuffer(notificationSoundBuffer);
 		}
 
