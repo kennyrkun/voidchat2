@@ -24,8 +24,14 @@ VoidChat::VoidChat()
 	{
 		{
 			std::cout << "sounds" << std::endl;
-			notificationSoundBuffer.loadFromFile("./resource/audio/you_were_poked.wav");
+			notificationSoundBuffer.loadFromFile("./resource/audio/chat_message_inbound.wav");
 			notificationSound.setBuffer(notificationSoundBuffer);
+
+			userJoinedSoundBuffer.loadFromFile("./resource/audio/neutral_connection_connected_currentchannel.wav");
+			userJoinedSound.setBuffer(userJoinedSoundBuffer);
+
+			userLeftSoundBuffer.loadFromFile("./resource/audio/neutral_connection_disconnected_currentchannel.wav");
+			userLeftSound.setBuffer(userLeftSoundBuffer);
 		}
 
 		{

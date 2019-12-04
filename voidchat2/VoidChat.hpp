@@ -50,6 +50,10 @@ private:
 	sf::View           scrollableView;
 
 	sf::SoundBuffer notificationSoundBuffer;
+	sf::SoundBuffer userJoinedSoundBuffer;
+	sf::SoundBuffer userLeftSoundBuffer;
+	sf::Sound userJoinedSound;
+	sf::Sound userLeftSound;
 	sf::Sound notificationSound;
 
 	bool running;
