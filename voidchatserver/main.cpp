@@ -3,6 +3,25 @@
 #include <iostream>
 #include <vector>
 
+std::vector<sf::TcpSocket*> sockets;
+
+void broadcastPacketToEveryoneExcept(sf::Packet packet, sf::TcpSocket* userToIgnore)
+{
+	for (auto& otherSocket : sockets)
+	{
+		if (otherSocket == userToIgnore)
+			continue;
+
+		otherSocket->send(packet);
+	}
+}
+
+void broadcastPacketToEveryone(sf::Packet packet)
+{
+	for (auto& otherSocket : sockets)
+		otherSocket->send(packet);
+}
+
 int main()
 {
 	std::cout << "VoidChatServer" << std::endl;
@@ -25,8 +44,6 @@ int main()
 	std::cout << "this server's public ip address is: " << sf::IpAddress::getPublicAddress() << std::endl;
 
 	bool running = true;
-
-	std::vector<sf::TcpSocket*> sockets;
 	
 	while (running)
 	{
@@ -57,25 +74,43 @@ int main()
 						std::string command;
 						packet >> command;
 
-						if (command == "startedTyping")
+						if (command == "userJoining")
+						{
+							std::string user;
+							packet >> user;
+
+							std::cout << user << " joined the channel" << std::endl;
+
+							sf::Packet outgoingMessage;
+							outgoingMessage << "userJoined";
+							outgoingMessage << user;
+							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+						}
+						else if (command == "userLeaving")
 						{
 							std::string user;
 							packet >> user;
 
 							std::cout << user << " started typing" << std::endl;
 
-							for (auto& otherSocket : sockets)
-							{
-								// skip whoever started typing
-								if (otherSocket == socket)
-									continue;
+							sf::Packet outgoingMessage;
+							outgoingMessage << "userLeft";
+							outgoingMessage << user;
 
-								sf::Packet outgoingMessage;
-								outgoingMessage << "userStartedTyping";
-								outgoingMessage << user;
+							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+						}
+						else if (command == "startedTyping")
+						{
+							std::string user;
+							packet >> user;
 
-								otherSocket->send(outgoingMessage);
-							}
+							std::cout << user << " started typing" << std::endl;
+
+							sf::Packet outgoingMessage;
+							outgoingMessage << "userStartedTyping";
+							outgoingMessage << user;
+
+							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
 						}
 						else if (command == "stoppedTyping")
 						{
@@ -84,18 +119,11 @@ int main()
 
 							std::cout << user << " stopped typing" << std::endl;
 
-							for (auto& otherSocket : sockets)
-							{
-								// skip whoever stopped typing
-								if (otherSocket == socket)
-									continue;
+							sf::Packet outgoingMessage;
+							outgoingMessage << "userStoppedTyping";
+							outgoingMessage << user;
 
-								sf::Packet outgoingMessage;
-								outgoingMessage << "userStoppedTyping";
-								outgoingMessage << user;
-
-								otherSocket->send(outgoingMessage);
-							}
+							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
 						}
 						else if (command == "outgoingMessage")
 						{
@@ -107,26 +135,15 @@ int main()
 
 							std::cout << author << ": " << message << std::endl;
 
-							for (auto& otherSocket : sockets)
-							{
-								// skip the sender
-								if (otherSocket == socket)
-									continue;
+							sf::Packet outgoingMessage;
+							outgoingMessage << "incomingMessage";
+							outgoingMessage << author;
+							outgoingMessage << message;
 
-								sf::Packet outgoingMessage;
-								outgoingMessage << "incomingMessage";
-								outgoingMessage << author;
-								outgoingMessage << message;
-
-								otherSocket->send(outgoingMessage);
-							}
-
-							break;
+							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
 						}
 						else
-						{
 							std::cerr << "unknown command from client: " << command << std::endl;
-						}
 
 						break;
 					}

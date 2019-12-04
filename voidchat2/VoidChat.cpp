@@ -116,6 +116,12 @@ VoidChat::VoidChat()
 		abort();
 	}
 
+	sf::Packet packet;
+	packet << "userJoining";
+	packet << clientUsername;
+
+	onSend(packet);
+
 	selector.add(*socket);
 
 	running = true;
@@ -161,7 +167,10 @@ void VoidChat::HandleEvents()
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::EventType::Closed)
+		{
+			onQuit(event);
 			window.close();
+		}
 		//TODO: resize events
 		else if (event.type == sf::Event::EventType::MouseWheelMoved)
 		{
@@ -255,7 +264,25 @@ int VoidChat::onNetworkIncoming()
 			std::string command;
 			packet >> command;
 
-			if (command == "userStartedTyping")
+			if (command == "userJoined")
+			{
+				std::string user;
+				packet >> user;
+
+				addMessage(Message("SYSTEM", user + " joined the channel."));
+
+				userJoinedSound.play();
+			}
+			else if (command == "userLeft")
+			{
+				std::string user;
+				packet >> user;
+
+				addMessage(Message("SYSTEM", user + " disconnected from the channel."));
+
+				userLeftSound.play();
+			}
+			else if (command == "userStartedTyping")
 			{
 				std::string user;
 				packet >> user;
@@ -361,10 +388,11 @@ int VoidChat::onQuit(sf::Event& event)
 {
 	std::cout << "informing the server that we are leaving" << std::endl;
 
-	sf::Packet leave;
-	leave << "leaving";
+	sf::Packet packet;
+	packet << "userLeaving";
+	packet << clientUsername;
 
-	return onSend(leave);
+	return onSend(packet);
 }
 
 int VoidChat::onSend(sf::Packet packet)
