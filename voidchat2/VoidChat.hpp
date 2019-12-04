@@ -18,8 +18,6 @@ public:
 	VoidChat();
 	~VoidChat();
 
-	void Init();
-
 	// showWindow();
 	// hideWinodw();
 
@@ -69,6 +67,9 @@ private:
 
 	sf::TcpSocket* socket;
 	sf::SocketSelector selector;
+
+	sf::Color sendButtonCannotSendColor = sf::Color(100, 100, 100);
+	sf::Color sendButtonSendColor = sf::Color(210, 210, 210);
 };
 
 #endif /* VOIDCHAT_CLIENT_HPP */
