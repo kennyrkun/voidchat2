@@ -40,13 +40,13 @@ VoidChat::VoidChat()
 			sendButton.setRadius(10);
 			sendButton.setOrigin(sf::Vector2f(sendButton.getLocalBounds().width / 2, sendButton.getLocalBounds().height / 2));
 
-			sf::Vector2f pos((inputBox.getPosition().x * 2) - 20.0f, 0);
+			sf::Vector2f pos((inputBox.getPosition().x + inputBox.getSize().x) - 20.0f, inputBox.getPosition().y + 20.0f);
 			sendButton.setPosition(pos);
 
 			if (sendButtonTexture.loadFromFile("resource/textures/sendbutton.png"))
 				sendButton.setTexture(&sendButtonTexture);
 			else
-				sendButton.setFillColor(sf::Color(190, 190, 190, 50));
+				sendButton.setFillColor(sf::Color(210, 210, 210, 210));
 		}
 
 		std::cout << "done!\n" << std::endl;
@@ -128,7 +128,7 @@ void VoidChat::setIsTyping(bool typing)
 		inputBoxText.setString("");
 		inputBoxText.setFillColor(sf::Color::White);
 
-		sendButton.setFillColor(sf::Color(190, 190, 190));
+		sendButton.setFillColor(sendButtonSendColor);
 		onStartTyping();
 	}
 	else
@@ -138,8 +138,7 @@ void VoidChat::setIsTyping(bool typing)
 		inputBoxText.setString("type a message");
 		inputBoxText.setFillColor(sf::Color(100, 100, 100));
 
-//		sendButton.setFillColor(sf::Color(125, 125, 125));
-		sendButton.setFillColor(sf::Color(190, 190, 190, 50));
+		sendButton.setFillColor(sendButtonCannotSendColor);
 		onStopTyping();
 	}
 
