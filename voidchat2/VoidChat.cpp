@@ -34,7 +34,7 @@ VoidChat::VoidChat()
 			inputBox.setFillColor(sf::Color(100, 100, 100));
 			inputBox.setPosition(sf::Vector2f(0, window.getSize().y - inputBox.getSize().y));
 		}
-		 
+		
 		{
 			std::cout << "send button" << std::endl;
 			sendButton.setRadius(10);
@@ -125,18 +125,20 @@ void VoidChat::setIsTyping(bool typing)
 {
 	if (typing)
 	{
+		std::cout << "starting to type" << std::endl;
+
 		inputBoxText.setString("");
 		inputBoxText.setFillColor(sf::Color::White);
 
 		sendButton.setFillColor(sendButtonSendColor);
 		onStartTyping();
 	}
-	else
+	else 
 	{
 		std::cout << "message box is now empty" << std::endl;
 
-		inputBoxText.setString("type a message");
 		inputBoxText.setFillColor(sf::Color(100, 100, 100));
+		inputBoxText.setString("type a message");
 
 		sendButton.setFillColor(sendButtonCannotSendColor);
 		onStopTyping();
@@ -164,10 +166,11 @@ void VoidChat::HandleEvents()
 			else if (event.mouseWheel.delta < 0) // up
 				scrollableView.move(0, 26);
 		}
-		else if (event.type == sf::Event::KeyPressed)
-			onKeyPressed(event);
 		else if (event.type == sf::Event::TextEntered)
+		{
+			std::cout << "text event received" << std::endl;
 			onTextEntered(event);
+		}
 	}
 }
 
@@ -215,6 +218,8 @@ void VoidChat::onReceiveMessage(std::string author, std::string message)
 
 int VoidChat::onStartTyping()
 {
+	std::cout << "informing the server that we are now typing" << std::endl;
+
 	sf::Packet packet;
 	packet << "startedTyping";
 	packet << clientUsername;
@@ -224,6 +229,8 @@ int VoidChat::onStartTyping()
 
 int VoidChat::onStopTyping()
 {
+	std::cout << "informing the server that we stopped typing" << std::endl;
+
 	sf::Packet packet;
 	packet << "stoppedTyping";
 	packet << clientUsername;
@@ -237,6 +244,8 @@ int VoidChat::onNetworkIncoming()
 	{
 		if (selector.isReady(*socket))
 		{
+			std::cout << "processing network information" << std::endl;
+
 			sf::Packet packet;
 			socket->receive(packet);
 
@@ -286,67 +295,70 @@ int VoidChat::onNetworkIncoming()
 		}
 	}
 
-	return true;
-}
-
-int VoidChat::onKeyPressed(sf::Event& event)
-{
-	std::string message = inputBoxText.getString().toAnsiString();
-
-	if (!meTyping || message.size() <= 0)
-	{
-		std::cout << "skipping" << std::endl;
-		return -1;
-	}
-
-	if (event.key.code == sf::Keyboard::Key::Return)
-	{
-		if (message.length() <= 0) // can't send nothing, can we?
-			return -1;
-
-		addMessage(clientUsername, message);
-
-		if (!onSendMessage(message))
-		{
-			std::cout << "failed to send message" << std::endl;
-			messages.back().setFillColor(sf::Color::Red);
-		}
-
-		setIsTyping(false);
-	}
-	else if (event.key.code == sf::Keyboard::Key::Backspace) // backspace
-	{
-		message.pop_back();
-		inputBoxText.setString(message);
-
-		// if the message is empty now, we have stopped typing
-		if (message.size() == 0)
-		{
-			setIsTyping(false);
-			std::cout << "it's empty now" << std::endl;
-		}
-	}
-
-	return 0;
+	return 1;
 }
 
 int VoidChat::onTextEntered(sf::Event& e)
 {
+	std::cout << "processing text entered event" << std::endl;
+
+	std::string message = "";
+
+	if (meTyping)
+		std::string message = inputBoxText.getString(); // temp string
+
 	if (e.text.unicode < 128) // something on a keyboard
 	{
 		switch (e.text.unicode)
 		{
 		case 13: // return
-		case 8: // backspace
-			return -1;
+		{
+			std::cout << "return key was pressed" << std::endl;
+
+			if (message.length() <= 0) // can't send nothing, can we?
+				return -1;
+
+			addMessage(clientUsername, message);
+
+			if (!onSendMessage(message))
+			{
+				std::cerr << "failed to send message" << std::endl;
+				messages.back().setFillColor(sf::Color::Red);
+			}
+			else
+				messages.back().setFillColor(sf::Color::White);
+
+			setIsTyping(false);
+			break;
+		}
+		case 8: // backspace	
+		{
+			std::cout << "backspace key was pressed" << std::endl;
+
+			message.pop_back();
+
+			std::cout << "setting inputboxtext" << std::endl;
+			inputBoxText.setString(message);
+
+			// if the message is empty now, we have stopped typing
+			if (message.size() == 0)
+			{
+				std::cout << "it's empty now" << std::endl;
+				setIsTyping(false);
+			}
+
+			break;
+		}
 		default:
 		{
 			if (!meTyping)
 				setIsTyping(true);
 
-			std::string message = inputBoxText.getString(); // temp string
+			std::cout << "updating message box" << std::endl;
 
 			message += static_cast<char>(e.text.unicode);
+
+			std::cout << "setting inputboxtext" << std::endl;
 			inputBoxText.setString(message); // we should see our changes, yes?
 			break;
 		}
@@ -358,16 +370,24 @@ int VoidChat::onTextEntered(sf::Event& e)
 
 int VoidChat::onQuit(sf::Event& event)
 {
-	return 0;
+	std::cout << "informing the server that we are leaving" << std::endl;
+
+	sf::Packet leave;
+	leave << "leaving";
+
+	return onSend(leave);
 }
 
 int VoidChat::onSend(sf::Packet packet)
 {
+	std::cout << "sending packet" << std::endl;
 	return (socket->send(packet) == sf::Socket::Status::Done);
 }
 
 std::string VoidChat::getTypingString()
 {
+	std::cout << "setting typing string" << std::endl;
+
 	std::string typingString;
 
 	if (remoteTypingUsers.size() == 1)
@@ -401,10 +421,13 @@ std::string VoidChat::getTypingString()
 
 void VoidChat::addMessage(std::string author, std::string message)
 {
+	std::cout << "adding new message" << std::endl;
+
 	sf::Text newMessage;
 	newMessage.setString(message);
 	newMessage.setFont(font);
 	newMessage.setCharacterSize(18);
+	newMessage.setFillColor(sf::Color(100, 100, 100));
 
 	if (!messages.empty())
 	{

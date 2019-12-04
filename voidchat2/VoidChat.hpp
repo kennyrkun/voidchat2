@@ -57,7 +57,6 @@ private:
 	int onStartTyping();
 	int onStopTyping();
 	int onNetworkIncoming();
-	int onKeyPressed(sf::Event& event);
 	int onTextEntered(sf::Event& event);
 	int onQuit(sf::Event& event);
 	int onSend(sf::Packet packet);
@@ -68,8 +67,8 @@ private:
 	sf::TcpSocket* socket;
 	sf::SocketSelector selector;
 
-	sf::Color sendButtonCannotSendColor = sf::Color(100, 100, 100);
-	sf::Color sendButtonSendColor = sf::Color(210, 210, 210);
+	sf::Color sendButtonCannotSendColor = sf::Color(150, 150, 150);
+	sf::Color sendButtonSendColor = sf::Color::White;
 };
 
-#endif /* VOIDCHAT_CLIENT_HPP */
+#endif // !VOIDCHAT_CLIENT_HPP
