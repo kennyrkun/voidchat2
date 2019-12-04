@@ -302,7 +302,7 @@ int VoidChat::onKeyPressed(sf::Event& event)
 
 	if (event.key.code == sf::Keyboard::Key::Return)
 	{
-		if (message.length() != 0) // can't send nothing, can we?
+		if (message.length() <= 0) // can't send nothing, can we?
 			return -1;
 
 		addMessage(clientUsername, message);
