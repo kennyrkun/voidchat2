@@ -45,8 +45,8 @@ VoidChat::VoidChat()
 
 			if (sendButtonTexture.loadFromFile("resource/textures/sendbutton.png"))
 				sendButton.setTexture(&sendButtonTexture);
-			else
-				sendButton.setFillColor(sf::Color(210, 210, 210, 210));
+			
+			sendButton.setFillColor(sendButtonCannotSendColor);
 		}
 
 		std::cout << "done!\n" << std::endl;
@@ -67,7 +67,7 @@ VoidChat::VoidChat()
 			inputBoxText.setFont(font);
 			inputBoxText.setCharacterSize(14);
 			inputBoxText.setString("type a message");
-			inputBoxText.setFillColor(sf::Color(200, 200, 200));
+			inputBoxText.setFillColor(sendButtonCannotSendColor);
 
 			inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
 			inputBoxText.setPosition(sf::Vector2f(5, (window.getSize().y - (inputBox.getSize().y / 2))));
@@ -128,7 +128,7 @@ void VoidChat::setIsTyping(bool typing)
 		std::cout << "starting to type" << std::endl;
 
 		inputBoxText.setString("");
-		inputBoxText.setFillColor(sf::Color::White);
+		inputBoxText.setFillColor(sendButtonSendColor);
 
 		sendButton.setFillColor(sendButtonSendColor);
 		onStartTyping();
@@ -137,7 +137,7 @@ void VoidChat::setIsTyping(bool typing)
 	{
 		std::cout << "message box is now empty" << std::endl;
 
-		inputBoxText.setFillColor(sf::Color(100, 100, 100));
+		inputBoxText.setFillColor(sendButtonCannotSendColor);
 		inputBoxText.setString("type a message");
 
 		sendButton.setFillColor(sendButtonCannotSendColor);
@@ -145,6 +145,8 @@ void VoidChat::setIsTyping(bool typing)
 	}
 
 	meTyping = typing;
+
+	std::cout << "typing: " << typing << std::endl;
 }
 
 void VoidChat::HandleEvents()
@@ -153,9 +155,7 @@ void VoidChat::HandleEvents()
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::EventType::Closed)
-		{
 			window.close();
-		}
 		//TODO: resize events
 		else if (event.type == sf::Event::EventType::MouseWheelMoved)
 		{
@@ -167,10 +167,7 @@ void VoidChat::HandleEvents()
 				scrollableView.move(0, 26);
 		}
 		else if (event.type == sf::Event::TextEntered)
-		{
-			std::cout << "text event received" << std::endl;
 			onTextEntered(event);
-		}
 	}
 }
 
@@ -305,7 +302,7 @@ int VoidChat::onTextEntered(sf::Event& e)
 	std::string message = "";
 
 	if (meTyping)
-		std::string message = inputBoxText.getString(); // temp string
+		message = inputBoxText.getString().toAnsiString(); // temp string
 
 	if (e.text.unicode < 128) // something on a keyboard
 	{
@@ -333,18 +330,17 @@ int VoidChat::onTextEntered(sf::Event& e)
 		}
 		case 8: // backspace	
 		{
-			std::cout << "backspace key was pressed" << std::endl;
-
-			message.pop_back();
-
-			std::cout << "setting inputboxtext" << std::endl;
-			inputBoxText.setString(message);
-
-			// if the message is empty now, we have stopped typing
-			if (message.size() == 0)
+			if (message.size() > 0)
 			{
-				std::cout << "it's empty now" << std::endl;
-				setIsTyping(false);
+				message.pop_back();
+				inputBoxText.setString(message);
+
+				// if the message is empty now, we have stopped typing
+				if (message.size() == 0)
+				{
+					std::cout << "it's empty now" << std::endl;
+					setIsTyping(false);
+				}
 			}
 
 			break;
@@ -354,11 +350,7 @@ int VoidChat::onTextEntered(sf::Event& e)
 			if (!meTyping)
 				setIsTyping(true);
 
-			std::cout << "updating message box" << std::endl;
-
 			message += static_cast<char>(e.text.unicode);
-
-			std::cout << "setting inputboxtext" << std::endl;
 			inputBoxText.setString(message); // we should see our changes, yes?
 			break;
 		}
