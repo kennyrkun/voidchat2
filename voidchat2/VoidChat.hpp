@@ -12,6 +12,8 @@
 
 #define CVERSION "2.3.0"
 
+class Message;
+
 class VoidChat
 {
 public:
@@ -52,8 +54,8 @@ private:
 
 	bool running;
 
-	int onSendMessage(std::string message);
-	void onReceiveMessage(std::string author, std::string message);
+	int onSendMessage(const Message& message);
+	void onReceiveMessage(const Message& message);
 	int onStartTyping();
 	int onStopTyping();
 	int onNetworkIncoming();
@@ -62,7 +64,7 @@ private:
 	int onSend(sf::Packet packet);
 
 	std::string getTypingString();
-	void addMessage(std::string author, std::string message);
+	void addMessage(const Message& message);
 
 	sf::TcpSocket* socket;
 	sf::SocketSelector selector;

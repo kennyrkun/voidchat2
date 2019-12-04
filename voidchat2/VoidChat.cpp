@@ -196,20 +196,20 @@ void VoidChat::Draw()
 	window.display();
 }
 
-int VoidChat::onSendMessage(std::string message)
+int VoidChat::onSendMessage(const Message& message)
 {
 	sf::Packet messagePacket;
-	messagePacket << Message(clientUsername, message);
+	messagePacket << message;
 
 	// TODO: only show this if send was successful
-	std::cout << "sent \"" << message << "\" (length " << message.length() << ")" << std::endl;
+	std::cout << "sent \"" << message.author << "\" (length " << message.content.length() << ")" << std::endl;
 
 	return onSend(messagePacket);
 }
 
-void VoidChat::onReceiveMessage(std::string author, std::string message)
+void VoidChat::onReceiveMessage(const Message& message)
 {
-	addMessage(author, message);
+	addMessage(message);
 	notificationSound.play();
 }
 
@@ -270,20 +270,10 @@ int VoidChat::onNetworkIncoming()
 			}
 			else if (command == "incomingMessage")
 			{
-				/*
 				Message message;
 				packet >> message;
 
-				onReceiveMessage(message.author, message.content);
-				*/
-
-				std::string author;
-				std::string message;
-
-				packet >> author;
-				packet >> message;
-
-				onReceiveMessage(author, message);
+				onReceiveMessage(message);
 			}
 			else
 			{
@@ -315,9 +305,10 @@ int VoidChat::onTextEntered(sf::Event& e)
 			if (message.length() <= 0) // can't send nothing, can we?
 				return -1;
 
-			addMessage(clientUsername, message);
+			Message newMessage(clientUsername, message);
+			addMessage(newMessage);
 
-			if (!onSendMessage(message))
+			if (!onSendMessage(newMessage))
 			{
 				std::cerr << "failed to send message" << std::endl;
 				messages.back().setFillColor(sf::Color::Red);
@@ -411,12 +402,12 @@ std::string VoidChat::getTypingString()
 	return typingString;
 }
 
-void VoidChat::addMessage(std::string author, std::string message)
+void VoidChat::addMessage(const Message& message)
 {
 	std::cout << "adding new message" << std::endl;
 
 	sf::Text newMessage;
-	newMessage.setString(message);
+	newMessage.setString(message.content);
 	newMessage.setFont(font);
 	newMessage.setCharacterSize(18);
 	newMessage.setFillColor(sf::Color(100, 100, 100));
