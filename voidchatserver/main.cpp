@@ -5,6 +5,20 @@
 
 std::vector<sf::TcpSocket*> sockets;
 
+bool testClientConnection(sf::TcpSocket* socket)
+{
+	std::cout << "Testing connecting to " << socket->getRemoteAddress() << std::endl;
+
+	sf::Packet connectionTest;
+
+	if (socket->send(connectionTest) == sf::Socket::Status::Disconnected)
+		return false;
+	else if (socket->getRemoteAddress() == sf::IpAddress::None)
+		return false;
+
+	return true;
+}
+
 void broadcastPacketToEveryoneExcept(sf::Packet packet, sf::TcpSocket* userToIgnore)
 {
 	for (auto& otherSocket : sockets)

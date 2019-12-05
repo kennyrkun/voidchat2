@@ -137,8 +137,6 @@ void VoidChat::setIsTyping(bool typing)
 {
 	if (typing)
 	{
-		std::cout << "starting to type" << std::endl;
-
 		inputBoxText.setString("");
 		inputBoxText.setFillColor(sendButtonSendColor);
 
@@ -147,8 +145,6 @@ void VoidChat::setIsTyping(bool typing)
 	}
 	else 
 	{
-		std::cout << "message box is now empty" << std::endl;
-
 		inputBoxText.setFillColor(sendButtonCannotSendColor);
 		inputBoxText.setString("type a message");
 
@@ -157,8 +153,6 @@ void VoidChat::setIsTyping(bool typing)
 	}
 
 	meTyping = typing;
-
-	std::cout << "typing: " << typing << std::endl;
 }
 
 void VoidChat::HandleEvents()
@@ -177,9 +171,9 @@ void VoidChat::HandleEvents()
 			//TODO: implement scrollbar and scrollstep
 
 			if (event.mouseWheel.delta > 0) // down
-				scrollableView.move(0, -26);
+				scrollableView.move(0, -30);
 			else if (event.mouseWheel.delta < 0) // up
-				scrollableView.move(0, 26);
+				scrollableView.move(0, 30);
 		}
 		else if (event.type == sf::Event::TextEntered)
 			onTextEntered(event);
@@ -197,8 +191,8 @@ void VoidChat::Draw()
 
 	window.setView(scrollableView);
 
-	for (size_t i = 0; i < messages.size(); i++)
-		window.draw(messages[i]);
+	for (auto& message : messages)
+		window.draw(message);
 
 	// ui elements
 	window.setView(window.getDefaultView());
@@ -320,8 +314,6 @@ int VoidChat::onNetworkIncoming()
 
 int VoidChat::onTextEntered(sf::Event& e)
 {
-	std::cout << "processing text entered event" << std::endl;
-
 	std::string message = "";
 
 	if (meTyping)
@@ -344,10 +336,10 @@ int VoidChat::onTextEntered(sf::Event& e)
 			if (!onSendMessage(newMessage))
 			{
 				std::cerr << "failed to send message" << std::endl;
-				messages.back().setFillColor(sf::Color::Red);
+				messages.back().setContentColor(sf::Color::Red);
 			}
 			else
-				messages.back().setFillColor(sf::Color::White);
+				messages.back().setContentColor(sf::Color::White);
 
 			setIsTyping(false);
 			break;
@@ -440,19 +432,23 @@ void VoidChat::addMessage(const Message& message)
 {
 	std::cout << "adding new message" << std::endl;
 
-	sf::Text newMessage;
-	newMessage.setString(message.content);
-	newMessage.setFont(font);
-	newMessage.setCharacterSize(18);
-	newMessage.setFillColor(sf::Color(100, 100, 100));
+	VisualMessage newMessage(message, &font);
 
 	if (!messages.empty())
 	{
-		newMessage.setPosition(8, messages.back().getPosition().y + 26);
-		scrollableView.move(0, 26);
+		VisualMessage& lastMessage = messages.back();
+
+		if (newMessage.message.author == lastMessage.message.author)
+			newMessage.setAvatarHidden(true);
+
+		// TODO: replace 30 magic number with lastMessage.getSize().y + 10
+		newMessage.setPosition(sf::Vector2f(8, lastMessage.getPosition().y + 30));
+		scrollableView.move(0, 30);
 	}
 	else
-		newMessage.setPosition(8, inputBox.getPosition().y - 36);
+		newMessage.setPosition(sf::Vector2f(8, inputBox.getPosition().y - 36));
 
 	messages.push_back(newMessage);
+
+	std::cout << "added message" << std::endl;
 }

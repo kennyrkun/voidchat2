@@ -12,6 +12,7 @@
 
 #define CVERSION "2.3.0"
 
+class VisualMessage;
 class Message;
 
 class VoidChat
@@ -39,7 +40,7 @@ private:
 	std::list<std::string> remoteTypingUsers;
 	bool meTyping = false;
 
-	std::vector<sf::Text> messages;
+	std::vector<VisualMessage> messages;
 	sf::Font		   font;
 	sf::Text		   inputBoxText;
 	sf::Text		   typingIdicator;
