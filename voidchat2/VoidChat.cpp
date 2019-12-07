@@ -35,6 +35,9 @@ VoidChat::VoidChat()
 
 			userLeftSoundBuffer.loadFromFile("./resource/audio/neutral_connection_disconnected_currentchannel.wav");
 			userLeftSound.setBuffer(userLeftSoundBuffer);
+
+			userTimedoutSoundBuffer.loadFromFile("./resource/audio/neutral_connection_connectionlost_currentchannel.wav");
+			userTimedoutSound.setBuffer(userTimedoutSoundBuffer);
 		}
 
 		{
@@ -288,13 +291,18 @@ int VoidChat::onNetworkIncoming()
 			else if (command == "userLeft")
 			{
 				std::string user;
+				std::string reason;
 				packet >> user;
+				packet >> reason;
 
 				addMessage(Message("SYSTEM", user + " left the channel."));
 				messages.back().setAuthorColor(sf::Color::Yellow);
 				messages.back().setContentColor(sf::Color::White);
 
-				userLeftSound.play();
+				if (reason == "timedOut")
+					userTimedoutSound.play();
+				else
+					userLeftSound.play();
 			}
 			else if (command == "userStartedTyping")
 			{

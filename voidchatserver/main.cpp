@@ -103,6 +103,14 @@ int main()
 						{
 							std::cout << "client has disconnected" << std::endl;
 							disconnectClient(socket, "Timed out");
+
+							sf::Packet notify;
+							notify << "userLeft";
+							notify << "UNKNOWN";
+							notify << "timedOut";
+
+							broadcastMessage(notify);
+
 							break;
 						}
 

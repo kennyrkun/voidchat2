@@ -53,8 +53,10 @@ private:
 	sf::SoundBuffer notificationSoundBuffer;
 	sf::SoundBuffer userJoinedSoundBuffer;
 	sf::SoundBuffer userLeftSoundBuffer;
+	sf::SoundBuffer userTimedoutSoundBuffer;
 	sf::Sound userJoinedSound;
 	sf::Sound userLeftSound;
+	sf::Sound userTimedoutSound;
 	sf::Sound notificationSound;
 
 	bool running;
