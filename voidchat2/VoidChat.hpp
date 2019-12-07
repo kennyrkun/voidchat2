@@ -69,7 +69,7 @@ private:
 	int onSend(sf::Packet packet);
 
 	std::string getTypingString();
-	void addMessage(const Message& message);
+	VisualMessage& addMessage(const Message& message);
 
 	sf::TcpSocket* socket;
 	sf::SocketSelector selector;

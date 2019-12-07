@@ -1,11 +1,39 @@
 #include <SFML/Network.hpp>
 
 #include <iostream>
-#include <vector>
+#include <list>
 
-std::vector<sf::TcpSocket*> sockets;
+sf::TcpListener listener;
+sf::SocketSelector selector;
+std::list<sf::TcpSocket*> sockets;
 
-bool testClientConnection(sf::TcpSocket* socket)
+void disconnectClient(sf::TcpSocket* socket, std::string reason = "Generic Disconnect")
+{
+	std::cout << "disconnecting " << socket->getRemoteAddress() << ": " << reason << std::endl;
+
+	sf::Packet disconnect;
+	disconnect << "youGotDisconnected";
+	disconnect << reason;
+
+	// don't bother checking for errors, this is just a courtesy
+	socket->send(disconnect);
+
+	selector.remove(*socket);
+	socket->disconnect();
+	sockets.remove(socket);
+	delete socket;
+
+	if (sockets.size() <= 0)
+	{
+		std::cout << "cleaning up while we have no clients" << std::endl;
+
+		sockets.clear();
+		selector.clear();
+		selector.add(listener);
+	}
+}
+
+bool detailedClientConnectionTest(sf::TcpSocket* socket)
 {
 	std::cout << "Testing connecting to " << socket->getRemoteAddress() << std::endl;
 
@@ -19,28 +47,16 @@ bool testClientConnection(sf::TcpSocket* socket)
 	return true;
 }
 
-void broadcastPacketToEveryoneExcept(sf::Packet packet, sf::TcpSocket* userToIgnore)
+void broadcastMessage(sf::Packet packet, sf::TcpSocket* socketToIgnore = nullptr)
 {
-	for (auto& otherSocket : sockets)
-	{
-		if (otherSocket == userToIgnore)
-			continue;
-
-		otherSocket->send(packet);
-	}
-}
-
-void broadcastPacketToEveryone(sf::Packet packet)
-{
-	for (auto& otherSocket : sockets)
-		otherSocket->send(packet);
+	for (auto& socket : sockets)
+		if (socket != socketToIgnore)
+			socket->send(packet);
 }
 
 int main()
 {
 	std::cout << "VoidChatServer" << std::endl;
-
-	sf::TcpListener listener;
 
 	if (listener.listen(123) != sf::Socket::Status::Done)
 	{
@@ -51,7 +67,6 @@ int main()
 	else
 		std::cout << "Listener bound to port " << listener.getLocalPort() << std::endl;
 
-	sf::SocketSelector selector;
 	selector.add(listener);
 
 	std::cout << "this server's local ip address is: " << sf::IpAddress::getLocalAddress() << std::endl;
@@ -61,7 +76,9 @@ int main()
 	
 	while (running)
 	{
-		if (selector.wait())
+		std::cout << "runnin" << std::endl;
+
+		if (selector.wait(sf::seconds(10.0f)))
 		{
 			if (selector.isReady(listener))
 			{
@@ -83,7 +100,13 @@ int main()
 					if (selector.isReady(*socket))
 					{
 						sf::Packet packet;
-						socket->receive(packet);
+
+						if (socket->receive(packet) == sf::Socket::Disconnected)
+						{
+							std::cout << "client has disconnected" << std::endl;
+							disconnectClient(socket);
+							break;
+						}
 
 						std::string command;
 						packet >> command;
@@ -98,20 +121,22 @@ int main()
 							sf::Packet outgoingMessage;
 							outgoingMessage << "userJoined";
 							outgoingMessage << user;
-							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+							broadcastMessage(outgoingMessage, socket);
 						}
 						else if (command == "userLeaving")
 						{
 							std::string user;
 							packet >> user;
 
-							std::cout << user << " started typing" << std::endl;
+							std::cout << user << " left the channel" << std::endl;
+
+							disconnectClient(socket);
 
 							sf::Packet outgoingMessage;
 							outgoingMessage << "userLeft";
 							outgoingMessage << user;
 
-							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+							broadcastMessage(outgoingMessage);
 						}
 						else if (command == "startedTyping")
 						{
@@ -124,7 +149,7 @@ int main()
 							outgoingMessage << "userStartedTyping";
 							outgoingMessage << user;
 
-							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+							broadcastMessage(outgoingMessage, socket);
 						}
 						else if (command == "stoppedTyping")
 						{
@@ -137,7 +162,7 @@ int main()
 							outgoingMessage << "userStoppedTyping";
 							outgoingMessage << user;
 
-							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+							broadcastMessage(outgoingMessage, socket);
 						}
 						else if (command == "outgoingMessage")
 						{
@@ -154,17 +179,20 @@ int main()
 							outgoingMessage << author;
 							outgoingMessage << message;
 
-							broadcastPacketToEveryoneExcept(outgoingMessage, socket);
+							broadcastMessage(outgoingMessage, socket);
 						}
 						else
+						{
 							std::cerr << "unknown command from client: " << command << std::endl;
+
+							if (!detailedClientConnectionTest(socket))
+								disconnectClient(socket, "Connection Lost");
+						}
 
 						break;
 					}
 				}
 			}
 		}
-
-		sf::sleep(sf::milliseconds(100));
 	}
 }

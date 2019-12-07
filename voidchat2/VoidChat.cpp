@@ -258,7 +258,12 @@ int VoidChat::onNetworkIncoming()
 			std::cout << "processing network information" << std::endl;
 
 			sf::Packet packet;
-			socket->receive(packet);
+
+			if (socket->receive(packet) == sf::Socket::Disconnected)
+			{
+				std::cout << "server freaking died" << std::endl;
+				exit(0);
+			}
 
 			std::string command;
 			packet >> command;
@@ -277,7 +282,7 @@ int VoidChat::onNetworkIncoming()
 				std::string user;
 				packet >> user;
 
-				addMessage(Message("SYSTEM", user + " disconnected from the channel."));
+				addMessage(Message("SYSTEM", user + " left the channel."));
 
 				userLeftSound.play();
 			}
@@ -433,7 +438,7 @@ std::string VoidChat::getTypingString()
 	return typingString;
 }
 
-void VoidChat::addMessage(const Message& message)
+VisualMessage& VoidChat::addMessage(const Message& message)
 {
 	std::cout << "adding new message" << std::endl;
 
@@ -456,4 +461,6 @@ void VoidChat::addMessage(const Message& message)
 	messages.push_back(newMessage);
 
 	std::cout << "added message" << std::endl;
+
+	return newMessage;
 }
