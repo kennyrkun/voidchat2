@@ -132,8 +132,14 @@ VoidChat::VoidChat()
 
 VoidChat::~VoidChat()
 {
-	socket->disconnect();
-	delete socket;
+	sf::Packet packet;
+	packet << "userLeaving";
+	packet << clientUsername;
+
+	onSend(packet);
+
+	sf::Event event;
+	onQuit(event);
 }
 
 void VoidChat::setIsTyping(bool typing)
@@ -274,6 +280,8 @@ int VoidChat::onNetworkIncoming()
 				packet >> user;
 
 				addMessage(Message("SYSTEM", user + " joined the channel."));
+				messages.back().setAuthorColor(sf::Color::Yellow);
+				messages.back().setContentColor(sf::Color::White);
 
 				userJoinedSound.play();
 			}
@@ -283,6 +291,8 @@ int VoidChat::onNetworkIncoming()
 				packet >> user;
 
 				addMessage(Message("SYSTEM", user + " left the channel."));
+				messages.back().setAuthorColor(sf::Color::Yellow);
+				messages.back().setContentColor(sf::Color::White);
 
 				userLeftSound.play();
 			}

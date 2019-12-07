@@ -76,8 +76,6 @@ int main()
 	
 	while (running)
 	{
-		std::cout << "runnin" << std::endl;
-
 		if (selector.wait(sf::seconds(10.0f)))
 		{
 			if (selector.isReady(listener))
@@ -104,7 +102,7 @@ int main()
 						if (socket->receive(packet) == sf::Socket::Disconnected)
 						{
 							std::cout << "client has disconnected" << std::endl;
-							disconnectClient(socket);
+							disconnectClient(socket, "Timed out");
 							break;
 						}
 
@@ -130,11 +128,12 @@ int main()
 
 							std::cout << user << " left the channel" << std::endl;
 
-							disconnectClient(socket);
+							disconnectClient(socket, "You left.");
 
 							sf::Packet outgoingMessage;
 							outgoingMessage << "userLeft";
 							outgoingMessage << user;
+							outgoingMessage << "Manual Disconnect";
 
 							broadcastMessage(outgoingMessage);
 						}

@@ -18,6 +18,7 @@ public:
 
 	void setAvatarHidden(bool hideAvatar);
 
+	void setAuthorColor(const sf::Color& color);
 	void setContentColor(const sf::Color& color);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;

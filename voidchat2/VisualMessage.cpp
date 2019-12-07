@@ -52,6 +52,11 @@ void VisualMessage::setAvatarHidden(bool hideAvatar)
 	setPosition(getPosition());
 }
 
+void VisualMessage::setAuthorColor(const sf::Color& color)
+{
+	author.setFillColor(color);
+}
+
 void VisualMessage::setContentColor(const sf::Color& color)
 {
 	content.setFillColor(color);
