@@ -15,11 +15,13 @@ VoidChat::VoidChat()
 	if (clientUsername.empty())
 		clientUsername = "Guest";
 
-	window.create(sf::VideoMode(250, 350), ("VoidChat " CVERSION), sf::Style::Close);
+	window.create(sf::VideoMode(500, 350), ("VoidChat " CVERSION), sf::Style::Default);
 	window.setVerticalSyncEnabled(true); // just using vsync istead of a fixed timestep because it's a chat program, it doesn't need a timestep.
 
 	scrollableView.setSize(window.getDefaultView().getSize());
 	scrollableView.setCenter(window.getDefaultView().getCenter());
+	mainView.setSize(window.getDefaultView().getSize());
+	mainView.setCenter(window.getDefaultView().getCenter());
 
 	std::cout << "initializing UI" << std::endl;
 	std::cout << std::endl;
@@ -177,7 +179,16 @@ void VoidChat::HandleEvents()
 			onQuit(event);
 			window.close();
 		}
-		//TODO: resize events
+		else if (event.type == sf::Event::EventType::Resized)
+		{
+			sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+			mainView = sf::View(visibleArea);
+			scrollableView = sf::View(visibleArea);
+
+			inputBox.setSize(sf::Vector2f(window.getSize().x, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
+			inputBox.setPosition(sf::Vector2f(0, window.getSize().y - inputBox.getSize().y));
+			sendButton.setPosition((inputBox.getPosition().x + inputBox.getSize().x) - 20.0f, inputBox.getPosition().y + 20.0f);
+		}
 		else if (event.type == sf::Event::EventType::MouseWheelMoved)
 		{
 			//TODO: implement scrollbar and scrollstep
@@ -207,7 +218,7 @@ void VoidChat::Draw()
 		window.draw(message);
 
 	// ui elements
-	window.setView(window.getDefaultView());
+	window.setView(mainView);
 
 	window.draw(inputBox);
 	window.draw(sendButton);

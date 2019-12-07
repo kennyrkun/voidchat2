@@ -49,6 +49,7 @@ private:
 	sf::CircleShape	   sendButton;
 	sf::Texture        sendButtonTexture;
 	sf::View           scrollableView;
+	sf::View           mainView;
 
 	sf::SoundBuffer notificationSoundBuffer;
 	sf::SoundBuffer userJoinedSoundBuffer;
