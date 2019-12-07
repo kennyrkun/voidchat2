@@ -12,6 +12,9 @@ VoidChat::VoidChat()
 	std::cout << "username: ";
 	std::getline(std::cin, clientUsername);
 
+	if (clientUsername.empty())
+		clientUsername = "Guest";
+
 	window.create(sf::VideoMode(250, 350), ("VoidChat " CVERSION), sf::Style::Close);
 	window.setVerticalSyncEnabled(true); // just using vsync istead of a fixed timestep because it's a chat program, it doesn't need a timestep.
 
