@@ -10,7 +10,7 @@
 #include <vector>
 #include <list>
 
-#define CVERSION "2.3.0"
+#define CVERSION "2.5.0"
 
 class VisualMessage;
 class Message;
