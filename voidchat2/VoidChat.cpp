@@ -218,8 +218,10 @@ int VoidChat::onSendMessage(const Message& message)
 
 void VoidChat::onReceiveMessage(const Message& message)
 {
-	addMessage(message);
-	notificationSound.play();
+	addMessage(message).setContentColor(sf::Color::White);
+
+	if (!window.hasFocus())
+		notificationSound.play();
 }
 
 int VoidChat::onStartTyping()
