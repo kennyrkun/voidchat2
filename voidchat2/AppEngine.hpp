@@ -11,8 +11,8 @@ class AppState;
 
 struct AppSettings
 {
-	std::string version = "0.1-19w38a";
-	std::string title = "SFLCARS " + version;
+	std::string version = "2.5-19w50a";
+	std::string title = "voidchat " + version;
 	bool vsync = true;
 	bool debug = true;
 	bool console = false;
