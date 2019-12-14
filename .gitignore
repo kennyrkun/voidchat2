@@ -244,8 +244,8 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /SFML
+/SFUI
 /voidchat
-SFUI
 voidchat2/resource/server.cfg
 voidchat2/resource/audio/frisky
 voidchat2/resource/audio/geeky
