@@ -1,14 +1,23 @@
 #include "VoidChat.hpp"
 
-int main()
-{
-	VoidChat chat;
+#include "AppEngine.hpp"
+#include "InitialiseState.hpp"
 
-	while (chat.isRunning()) // TODO: bool running
+int main(int argc, char* argv[])
+{
+	AppSettings settings;
+	settings.launchOptions = { argc, argv };
+
+	AppEngine engine;
+	engine.Init(settings);
+
+	engine.PushState(new InitialiseState);
+
+	while (engine.isRunning())
 	{
-		chat.HandleEvents();
-		chat.Update();
-		chat.Draw();
+		engine.HandleEvents();
+		engine.Update();
+		engine.Draw();
 	}
 
 	return 0;

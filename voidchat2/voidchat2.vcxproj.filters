@@ -9,9 +9,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Message">
-      <UniqueIdentifier>{69b33be5-3c9c-4d9b-948f-b4baae2aea4c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -20,11 +17,23 @@
     <ClCompile Include="VoidChat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VisualMessage.cpp">
-      <Filter>Source Files\Message</Filter>
+    <ClCompile Include="AppEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerJoinState.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Message.cpp">
-      <Filter>Source Files\Message</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisualMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InitialiseState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatState.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -33,13 +42,31 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="VoidChat.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AppEngine.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginState.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerJoinState.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="VisualMessage.hpp">
-      <Filter>Source Files\Message</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Message.hpp">
-      <Filter>Source Files\Message</Filter>
+      <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="VoidChat.hpp">
+    <ClInclude Include="AppState.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InitialiseState.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatState.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

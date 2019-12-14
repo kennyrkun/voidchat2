@@ -6,22 +6,21 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <filesystem>
 
-VoidChat::VoidChat()
+namespace fs = std::experimental::filesystem;
+ 
+VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::RenderWindow* window) : clientUsername(username)
 {
-	std::cout << "username: ";
-	std::getline(std::cin, clientUsername);
-
 	if (clientUsername.empty())
 		clientUsername = "Guest";
 
-	window.create(sf::VideoMode(500, 350), ("VoidChat " CVERSION), sf::Style::Default);
-	window.setVerticalSyncEnabled(true); // just using vsync istead of a fixed timestep because it's a chat program, it doesn't need a timestep.
+	this->window = window;
 
-	scrollableView.setSize(window.getDefaultView().getSize());
-	scrollableView.setCenter(window.getDefaultView().getCenter());
-	mainView.setSize(window.getDefaultView().getSize());
-	mainView.setCenter(window.getDefaultView().getCenter());
+	scrollableView.setSize(window->getDefaultView().getSize());
+	scrollableView.setCenter(window->getDefaultView().getCenter());
+	mainView.setSize(window->getDefaultView().getSize());
+	mainView.setCenter(window->getDefaultView().getCenter());
 
 	std::cout << "initializing UI" << std::endl;
 	std::cout << std::endl;
@@ -44,9 +43,9 @@ VoidChat::VoidChat()
 
 		{
 			std::cout << "input box" << std::endl;
-			inputBox.setSize(sf::Vector2f(250.0f, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
+			inputBox.setSize(sf::Vector2f(window->getSize().x, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
 			inputBox.setFillColor(sf::Color(100, 100, 100));
-			inputBox.setPosition(sf::Vector2f(0, window.getSize().y - inputBox.getSize().y));
+			inputBox.setPosition(sf::Vector2f(0, window->getSize().y - inputBox.getSize().y));
 		}
 		
 		{
@@ -84,7 +83,7 @@ VoidChat::VoidChat()
 			inputBoxText.setFillColor(sendButtonCannotSendColor);
 
 			inputBoxText.setOrigin(0, inputBoxText.getLocalBounds().height / 2);
-			inputBoxText.setPosition(sf::Vector2f(5, (window.getSize().y - (inputBox.getSize().y / 2))));
+			inputBoxText.setPosition(sf::Vector2f(5, (window->getSize().y - (inputBox.getSize().y / 2))));
 		}
 
 		{
@@ -105,20 +104,24 @@ VoidChat::VoidChat()
 
 	std::cout << "finished." << std::endl;
 
-	std::ifstream getserver("./resource/server.cfg", std::ios::in | std::ios::binary);
+	if (fs::exists("./resources/server_override.cfg"))
+	{
+		std::ifstream getserver("./resource/server.cfg", std::ios::in | std::ios::binary);
 
-	if (!getserver.is_open())
-		abort();
+		if (!getserver.is_open())
+			abort();
 
-	std::string ip, port;
-	std::getline(getserver, ip);
-	std::getline(getserver, port);
+		std::string ipaddr, addrport;
+		std::getline(getserver, ipaddr);
+		std::getline(getserver, addrport);
 
-	char p = std::stoi(port);
+		ip = ipaddr;
+		port = std::stoi(addrport);
+	}
 
 	socket = new sf::TcpSocket;
 
-	if (socket->connect(sf::IpAddress(ip), p) != sf::Socket::Status::Done)
+	if (socket->connect(sf::IpAddress(ip), port) != sf::Socket::Status::Done)
 	{
 		std::cerr << "fuck" << std::endl;
 		abort();
@@ -172,12 +175,12 @@ void VoidChat::setIsTyping(bool typing)
 void VoidChat::HandleEvents()
 {
 	sf::Event event;
-	while (window.pollEvent(event))
+	while (window->pollEvent(event))
 	{
 		if (event.type == sf::Event::EventType::Closed)
 		{
 			onQuit(event);
-			window.close();
+			window->close();
 		}
 		else if (event.type == sf::Event::EventType::Resized)
 		{
@@ -185,8 +188,8 @@ void VoidChat::HandleEvents()
 			mainView = sf::View(visibleArea);
 			scrollableView = sf::View(visibleArea);
 
-			inputBox.setSize(sf::Vector2f(window.getSize().x, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
-			inputBox.setPosition(sf::Vector2f(0, window.getSize().y - inputBox.getSize().y));
+			inputBox.setSize(sf::Vector2f(window->getSize().x, 36.0f)); // this is at 36 so that it devides evenly, because if it doesn't all the fonts and images look terrible.
+			inputBox.setPosition(sf::Vector2f(0, window->getSize().y - inputBox.getSize().y));
 			sendButton.setPosition((inputBox.getPosition().x + inputBox.getSize().x) - 20.0f, inputBox.getPosition().y + 20.0f);
 		}
 		else if (event.type == sf::Event::EventType::MouseWheelMoved)
@@ -210,22 +213,22 @@ void VoidChat::Update()
 
 void VoidChat::Draw()
 {
-	window.clear(sf::Color(60, 60, 60));
+	window->clear(sf::Color(60, 60, 60));
 
-	window.setView(scrollableView);
+	window->setView(scrollableView);
 
 	for (auto& message : messages)
-		window.draw(message);
+		window->draw(message);
 
 	// ui elements
-	window.setView(mainView);
+	window->setView(mainView);
 
-	window.draw(inputBox);
-	window.draw(sendButton);
-	window.draw(inputBoxText);
-	window.draw(typingIdicator);
+	window->draw(inputBox);
+	window->draw(sendButton);
+	window->draw(inputBoxText);
+	window->draw(typingIdicator);
 
-	window.display();
+	window->display();
 }
 
 int VoidChat::onSendMessage(const Message& message)
@@ -243,7 +246,7 @@ void VoidChat::onReceiveMessage(const Message& message)
 {
 	addMessage(message).setContentColor(sf::Color::White);
 
-	if (!window.hasFocus())
+	if (!window->hasFocus())
 		notificationSound.play();
 }
 

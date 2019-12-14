@@ -18,14 +18,14 @@ class Message;
 class VoidChat
 {
 public:
-	VoidChat();
+	VoidChat(sf::IpAddress ip, char port, std::string username, sf::RenderWindow* window);
 	~VoidChat();
 
 	// showWindow();
 	// hideWinodw();
 
 	std::string clientUsername = "Guest";
-	sf::RenderWindow window;
+	sf::RenderWindow* window;
 
 //	void sortMessages(std::string message);
 	void setIsTyping(bool typing);
