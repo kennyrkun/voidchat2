@@ -7,7 +7,7 @@
 #include <SFUI/InputBox.hpp>
 #include <SFUI/Checkbox.hpp>
 
-class AdminState : public AppState
+class ServerJoinState : public AppState
 {
 public:
 	void Init(AppEngine* app);

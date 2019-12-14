@@ -49,7 +49,7 @@ void InitialiseState::Init(AppEngine* app_)
 
 	initialise();
 
-	app->ChangeState(new AdminState);
+	app->ChangeState(new ServerJoinState);
 }
 
 void InitialiseState::Cleanup()

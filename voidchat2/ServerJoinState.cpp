@@ -15,9 +15,9 @@ enum Callback
 	Connect,
 };
 
-void AdminState::Init(AppEngine* app)
+void ServerJoinState::Init(AppEngine* app)
 {
-	std::cout << "AdminState Init." << std::endl;
+	std::cout << "ServerJoinState Init." << std::endl;
 
 	this->app = app;
 
@@ -63,29 +63,29 @@ void AdminState::Init(AppEngine* app)
 	hbox->addLabel("Save Server");
 	hbox->add(rememberInformationBox = new SFUI::CheckBox);
 
-	std::cout << "AdminState Ready." << std::endl;
+	std::cout << "ServerJoinState Ready." << std::endl;
 }
 
-void AdminState::Cleanup()
+void ServerJoinState::Cleanup()
 {
-	std::cout << "Cleaing up AdminState." << std::endl;
+	std::cout << "Cleaing up ServerJoinState." << std::endl;
 
 	delete menu;
 
-	std::cout << "AdminState cleaned up." << std::endl;
+	std::cout << "ServerJoinState cleaned up." << std::endl;
 }
 
-void AdminState::Pause()
+void ServerJoinState::Pause()
 {
-	std::cout << "AdminState paused." << std::endl;
+	std::cout << "ServerJoinState paused." << std::endl;
 }
 
-void AdminState::Resume()
+void ServerJoinState::Resume()
 {
-	std::cout << "AdminState resumed." << std::endl;
+	std::cout << "ServerJoinState resumed." << std::endl;
 }
 
-void AdminState::HandleEvents()
+void ServerJoinState::HandleEvents()
 {
 	sf::Event event;
 
@@ -134,11 +134,11 @@ void AdminState::HandleEvents()
 	}
 }
 
-void AdminState::Update()
+void ServerJoinState::Update()
 {
 }
 
-void AdminState::Draw()
+void ServerJoinState::Draw()
 {
 	app->window.clear(SFUI::Theme::windowBgColor);
 
