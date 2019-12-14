@@ -7,8 +7,8 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <list>
+#include <map>
 
 #define CVERSION "2.5.0"
 
@@ -55,10 +55,19 @@ private:
 	sf::SoundBuffer userJoinedSoundBuffer;
 	sf::SoundBuffer userLeftSoundBuffer;
 	sf::SoundBuffer userTimedoutSoundBuffer;
+	sf::SoundBuffer connectedSoundBuffer;
+	sf::SoundBuffer disconnectedSoundBuffer;
+	sf::SoundBuffer connectionLostBuffer;
 	sf::Sound userJoinedSound;
 	sf::Sound userLeftSound;
 	sf::Sound userTimedoutSound;
 	sf::Sound notificationSound;
+	sf::Sound connectedSound;
+	sf::Sound disconnectedSound;
+	sf::Sound connectionLostSound;
+
+//	std::map<std::string, sf::Sound*> sounds;
+//	std::map<std::string, sf::SoundBuffer*> soundbuffers;
 
 	bool running;
 

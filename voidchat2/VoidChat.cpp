@@ -27,6 +27,23 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	{
 		{
+			/*
+			sf::SoundBuffer* buffer;
+			sf::Sound* sound;
+
+			buffer = new sf::SoundBuffer;
+			sound = new sf::Sound;
+
+			buffer->loadFromFile("./resource/audio/chat_message_inbound.wav");
+			sound->setBuffer(*buffer);
+
+			soundbuffers["chat_message_inbound"] = buffer;
+			sounds["chat_message_inbound"] = sound;
+
+			sound = nullptr;
+			soundbuffer = nullptr;
+			*/
+
 			std::cout << "sounds" << std::endl;
 			notificationSoundBuffer.loadFromFile("./resource/audio/chat_message_inbound.wav");
 			notificationSound.setBuffer(notificationSoundBuffer);
@@ -39,6 +56,15 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 			userTimedoutSoundBuffer.loadFromFile("./resource/audio/neutral_connection_connectionlost_currentchannel.wav");
 			userTimedoutSound.setBuffer(userTimedoutSoundBuffer);
+
+			connectedSoundBuffer.loadFromFile("./resource/audio/you_connected.wav");
+			connectedSound.setBuffer(connectedSoundBuffer);
+
+			disconnectedSoundBuffer.loadFromFile("./resource/audio/you_disconnected.wav");
+			disconnectedSound.setBuffer(disconnectedSoundBuffer);
+
+			connectionLostBuffer.loadFromFile("./resource/audio/you_lost_connection.wav");
+			connectionLostSound.setBuffer(connectionLostBuffer);
 		}
 
 		{
@@ -135,6 +161,8 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	selector.add(*socket);
 
+	connectedSound.play();
+
 	running = true;
 }
 
@@ -148,6 +176,8 @@ VoidChat::~VoidChat()
 
 	sf::Event event;
 	onQuit(event);
+
+	disconnectedSound.play();
 }
 
 void VoidChat::setIsTyping(bool typing)
@@ -284,14 +314,28 @@ int VoidChat::onNetworkIncoming()
 
 			if (socket->receive(packet) == sf::Socket::Disconnected)
 			{
+				connectionLostSound.play();
+
 				std::cout << "server freaking died" << std::endl;
+
+				sf::sleep(sf::seconds(1));
 				exit(0);
 			}
 
 			std::string command;
 			packet >> command;
 
-			if (command == "userJoined")
+			if (command == "youGotDisconnected")
+			{
+				std::cout << "disconnected from server" << std::endl;
+
+				disconnectedSound.play();
+
+				window->close();
+
+				sf::sleep(sf::seconds(1));
+			}
+			else if (command == "userJoined")
 			{
 				std::string user;
 				packet >> user;
