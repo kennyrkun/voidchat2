@@ -243,6 +243,8 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# project specific
 /SFML
 /SFUI
 /voidchat
