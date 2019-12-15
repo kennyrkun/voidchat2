@@ -65,6 +65,9 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 			connectionLostBuffer.loadFromFile("./resource/audio/you_lost_connection.wav");
 			connectionLostSound.setBuffer(connectionLostBuffer);
+
+			errorSoundBuffer.loadFromFile("./resource/audio/you_error.wav");
+			errorSound.setBuffer(errorSoundBuffer);
 		}
 
 		{
@@ -149,7 +152,10 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	if (socket->connect(sf::IpAddress(ip), port) != sf::Socket::Status::Done)
 	{
+		errorSound.play();
+
 		std::cerr << "fuck" << std::endl;
+		sf::sleep(sf::seconds(1));
 		abort();
 	}
 

@@ -58,6 +58,7 @@ private:
 	sf::SoundBuffer connectedSoundBuffer;
 	sf::SoundBuffer disconnectedSoundBuffer;
 	sf::SoundBuffer connectionLostBuffer;
+	sf::SoundBuffer errorSoundBuffer;
 	sf::Sound userJoinedSound;
 	sf::Sound userLeftSound;
 	sf::Sound userTimedoutSound;
@@ -65,6 +66,7 @@ private:
 	sf::Sound connectedSound;
 	sf::Sound disconnectedSound;
 	sf::Sound connectionLostSound;
+	sf::Sound errorSound;
 
 //	std::map<std::string, sf::Sound*> sounds;
 //	std::map<std::string, sf::SoundBuffer*> soundbuffers;
