@@ -376,6 +376,7 @@ int VoidChat::onNetworkIncoming()
 						userTimedoutSound.play();
 					else
 						userLeftSound.play();
+				}
 			}
 			else if (command == "userStartedTyping")
 			{
@@ -452,6 +453,19 @@ int VoidChat::onTextEntered(sf::Event& e)
 
 					Message newMessage("SYSTEM", "Notifications are " + std::string(notificationsAllowed ? "enabled" : "disabled"));
 					addMessage(newMessage);
+				}
+				else if (message.substr(0, std::string("/nick").length()) == "/nick" || message.substr(0, std::string("/nickname").length()) == "/nickname")
+				{
+					std::cout << "user is setting their nickname" << std::endl;
+
+					// TODO: this could be a bug
+					// what happens if there is no space?
+					message.erase(0, message.find_first_of(' ') + 1);
+
+					Message newMessage("SYSTEM", clientUsername + " is now known as " + message);
+					addMessage(newMessage);
+
+					clientUsername = message;
 				}
 			}
 			else
