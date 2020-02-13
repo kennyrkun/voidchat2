@@ -217,6 +217,8 @@ void VoidChat::HandleEvents()
 		{
 			onQuit(event);
 			window->close();
+
+			running = false;
 		}
 		else if (event.type == sf::Event::EventType::Resized)
 		{

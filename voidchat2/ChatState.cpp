@@ -37,6 +37,9 @@ void ChatState::Resume()
 void ChatState::HandleEvents()
 {
 	chat.HandleEvents();
+
+	if (!chat.isRunning())
+		app->PopState();
 }
 
 void ChatState::Update()
