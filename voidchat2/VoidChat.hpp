@@ -25,6 +25,7 @@ public:
 	// hideWinodw();
 
 	std::string clientUsername = "Guest";
+	bool notificationsAllowed = true;
 	sf::RenderWindow* window;
 
 //	void sortMessages(std::string message);

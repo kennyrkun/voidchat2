@@ -284,8 +284,12 @@ void VoidChat::onReceiveMessage(const Message& message)
 {
 	addMessage(message).setContentColor(sf::Color::White);
 
-	if (!window->hasFocus())
-		notificationSound.play();
+	if (notificationsAllowed)
+		if (!window->hasFocus())
+		{
+			notificationSound.play();
+			window->requestFocus();
+		}
 }
 
 int VoidChat::onStartTyping()
@@ -352,7 +356,8 @@ int VoidChat::onNetworkIncoming()
 				messages.back().setAuthorColor(sf::Color::Yellow);
 				messages.back().setContentColor(sf::Color::White);
 
-				userJoinedSound.play();
+				if (notificationsAllowed)
+					userJoinedSound.play();
 			}
 			else if (command == "userLeft")
 			{
@@ -365,10 +370,12 @@ int VoidChat::onNetworkIncoming()
 				messages.back().setAuthorColor(sf::Color::Yellow);
 				messages.back().setContentColor(sf::Color::White);
 
-				if (reason == "timedOut")
-					userTimedoutSound.play();
-				else
-					userLeftSound.play();
+				if (notificationsAllowed)
+				{
+					if (reason == "timedOut")
+						userTimedoutSound.play();
+					else
+						userLeftSound.play();
 			}
 			else if (command == "userStartedTyping")
 			{
@@ -424,18 +431,47 @@ int VoidChat::onTextEntered(sf::Event& e)
 			if (message.length() <= 0) // can't send nothing, can we?
 				return -1;
 
-			Message newMessage(clientUsername, message);
-			addMessage(newMessage);
-
-			if (!onSendMessage(newMessage))
+			if (message[0] == '/')
 			{
-				std::cerr << "failed to send message" << std::endl;
-				messages.back().setContentColor(sf::Color::Red);
+				if (message.substr(0, std::string("/notifications").length()) == "/notifications")
+				{
+					message.erase(0, 15);
+					std::cout << message << std::endl;
+
+					if (message == "off")
+						notificationsAllowed = false;
+					else if (message == "on")
+						notificationsAllowed = true;
+					else
+					{
+						Message newMessage("SYSTEM", "Invalid argument");
+						addMessage(newMessage);
+
+						break;
+					}
+
+					Message newMessage("SYSTEM", "Notifications are " + std::string(notificationsAllowed ? "enabled" : "disabled"));
+					addMessage(newMessage);
+				}
 			}
 			else
-				messages.back().setContentColor(sf::Color::White);
+			{
+				std::cout << "no command preceeding message" << std::endl;
 
-			setIsTyping(false);
+				Message newMessage(clientUsername, message);
+				addMessage(newMessage);
+
+				if (!onSendMessage(newMessage))
+				{
+					std::cerr << "failed to send message" << std::endl;
+					messages.back().setContentColor(sf::Color::Red);
+				}
+				else
+					messages.back().setContentColor(sf::Color::White);
+
+				setIsTyping(false);
+			}
+
 			break;
 		}
 		case 8: // backspace	
