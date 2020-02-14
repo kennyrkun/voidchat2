@@ -9,7 +9,7 @@
 #include <filesystem>
 
 namespace fs = std::experimental::filesystem;
- 
+
 VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::RenderWindow* window) : clientUsername(username)
 {
 	if (clientUsername.empty())
@@ -27,47 +27,15 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	{
 		{
-			/*
-			sf::SoundBuffer* buffer;
-			sf::Sound* sound;
-
-			buffer = new sf::SoundBuffer;
-			sound = new sf::Sound;
-
-			buffer->loadFromFile("./resource/audio/chat_message_inbound.wav");
-			sound->setBuffer(*buffer);
-
-			soundbuffers["chat_message_inbound"] = buffer;
-			sounds["chat_message_inbound"] = sound;
-
-			sound = nullptr;
-			soundbuffer = nullptr;
-			*/
-
 			std::cout << "sounds" << std::endl;
-			notificationSoundBuffer.loadFromFile("./resource/audio/chat_message_inbound.wav");
-			notificationSound.setBuffer(notificationSoundBuffer);
-
-			userJoinedSoundBuffer.loadFromFile("./resource/audio/neutral_connection_connected_currentchannel.wav");
-			userJoinedSound.setBuffer(userJoinedSoundBuffer);
-
-			userLeftSoundBuffer.loadFromFile("./resource/audio/neutral_connection_disconnected_currentchannel.wav");
-			userLeftSound.setBuffer(userLeftSoundBuffer);
-
-			userTimedoutSoundBuffer.loadFromFile("./resource/audio/neutral_connection_connectionlost_currentchannel.wav");
-			userTimedoutSound.setBuffer(userTimedoutSoundBuffer);
-
-			connectedSoundBuffer.loadFromFile("./resource/audio/you_connected.wav");
-			connectedSound.setBuffer(connectedSoundBuffer);
-
-			disconnectedSoundBuffer.loadFromFile("./resource/audio/you_disconnected.wav");
-			disconnectedSound.setBuffer(disconnectedSoundBuffer);
-
-			connectionLostBuffer.loadFromFile("./resource/audio/you_lost_connection.wav");
-			connectionLostSound.setBuffer(connectionLostBuffer);
-
-			errorSoundBuffer.loadFromFile("./resource/audio/you_error.wav");
-			errorSound.setBuffer(errorSoundBuffer);
+			notifications["chat_message_inbound"] = new Notification("./resource/audio/chat_message_inbound.wav");
+			notifications["neutral_connection_connected_currentchannel"] = new Notification("./resource/audio/neutral_connection_connected_currentchannel.wav");
+			notifications["neutral_connection_disconnected_currentchannel"] = new Notification("./resource/audio/neutral_connection_disconnected_currentchannel.wav");
+			notifications["neutral_connection_connectionlost_currentchannel"] = new Notification("./resource/audio/neutral_connection_connectionlost_currentchannel.wav");
+			notifications["you_connected"] = new Notification("./resource/audio/you_connected.wav");
+			notifications["you_disconnected"] = new Notification("./resource/audio/you_disconnected.wav");
+			notifications["you_lost_connection"] = new Notification("./resource/audio/you_lost_connection.wav");
+			notifications["you_error"] = new Notification("./resource/audio/you_error.wav");
 		}
 
 		{
@@ -152,7 +120,7 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	if (socket->connect(sf::IpAddress(ip), port) != sf::Socket::Status::Done)
 	{
-		errorSound.play();
+		notifications["you_error"]->play();
 
 		std::cerr << "fuck" << std::endl;
 		sf::sleep(sf::seconds(1));
@@ -167,7 +135,7 @@ VoidChat::VoidChat(sf::IpAddress ip, char port, std::string username, sf::Render
 
 	selector.add(*socket);
 
-	connectedSound.play();
+	notifications["you_connected"]->play();
 
 	running = true;
 }
@@ -183,7 +151,7 @@ VoidChat::~VoidChat()
 	sf::Event event;
 	onQuit(event);
 
-	disconnectedSound.play();
+	notifications["you_disconnected"]->play();
 }
 
 void VoidChat::setIsTyping(bool typing)
@@ -269,51 +237,6 @@ void VoidChat::Draw()
 	window->display();
 }
 
-int VoidChat::onSendMessage(const Message& message)
-{
-	sf::Packet messagePacket;
-	messagePacket << message;
-
-	// TODO: only show this if send was successful
-	std::cout << "sent \"" << message.author << "\" (length " << message.content.length() << ")" << std::endl;
-
-	return onSend(messagePacket);
-}
-
-void VoidChat::onReceiveMessage(const Message& message)
-{
-	addMessage(message).setContentColor(sf::Color::White);
-
-	if (notificationsAllowed)
-		if (!window->hasFocus())
-		{
-			notificationSound.play();
-			window->requestFocus();
-		}
-}
-
-int VoidChat::onStartTyping()
-{
-	std::cout << "informing the server that we are now typing" << std::endl;
-
-	sf::Packet packet;
-	packet << "startedTyping";
-	packet << clientUsername;
-
-	return onSend(packet);
-}
-
-int VoidChat::onStopTyping()
-{
-	std::cout << "informing the server that we stopped typing" << std::endl;
-
-	sf::Packet packet;
-	packet << "stoppedTyping";
-	packet << clientUsername;
-
-	return onSend(packet);
-}
-
 int VoidChat::onNetworkIncoming()
 {
 	if (selector.wait(sf::milliseconds(10)))
@@ -326,7 +249,7 @@ int VoidChat::onNetworkIncoming()
 
 			if (socket->receive(packet) == sf::Socket::Disconnected)
 			{
-				connectionLostSound.play();
+				notifications["you_lost_connection"]->play();
 
 				std::cout << "server freaking died" << std::endl;
 
@@ -341,8 +264,9 @@ int VoidChat::onNetworkIncoming()
 			{
 				std::cout << "disconnected from server" << std::endl;
 
-				disconnectedSound.play();
+				notifications["you_disconnected"]->play();
 
+				// TODO: disconnect message might do well here
 				window->close();
 
 				sf::sleep(sf::seconds(1));
@@ -357,7 +281,7 @@ int VoidChat::onNetworkIncoming()
 				messages.back().setContentColor(sf::Color::White);
 
 				if (notificationsAllowed)
-					userJoinedSound.play();
+					notifications["neutral_connection_connected_currentchannel"]->play();
 			}
 			else if (command == "userLeft")
 			{
@@ -373,9 +297,9 @@ int VoidChat::onNetworkIncoming()
 				if (notificationsAllowed)
 				{
 					if (reason == "timedOut")
-						userTimedoutSound.play();
+						notifications["neutral_connection_connectionlost_currentchannel"]->play();
 					else
-						userLeftSound.play();
+						notifications["neutral_connection_disconnected_currentchannel"]->play();
 				}
 			}
 			else if (command == "userStartedTyping")
@@ -412,6 +336,51 @@ int VoidChat::onNetworkIncoming()
 	}
 
 	return 1;
+}
+
+int VoidChat::onSendMessage(const Message& message)
+{
+	sf::Packet messagePacket;
+	messagePacket << message;
+
+	// TODO: only show this if send was successful
+	std::cout << "sent \"" << message.author << "\" (length " << message.content.length() << ")" << std::endl;
+
+	return onSend(messagePacket);
+}
+
+void VoidChat::onReceiveMessage(const Message& message)
+{
+	addMessage(message).setContentColor(sf::Color::White);
+
+	if (notificationsAllowed)
+		if (!window->hasFocus())
+		{
+			notifications["chat_message_inbound"]->play();
+			window->requestFocus();
+		}
+}
+
+int VoidChat::onStartTyping()
+{
+	std::cout << "informing the server that we are now typing" << std::endl;
+
+	sf::Packet packet;
+	packet << "startedTyping";
+	packet << clientUsername;
+
+	return onSend(packet);
+}
+
+int VoidChat::onStopTyping()
+{
+	std::cout << "informing the server that we stopped typing" << std::endl;
+
+	sf::Packet packet;
+	packet << "stoppedTyping";
+	packet << clientUsername;
+
+	return onSend(packet);
 }
 
 int VoidChat::onTextEntered(sf::Event& e)
@@ -462,11 +431,22 @@ int VoidChat::onTextEntered(sf::Event& e)
 					// what happens if there is no space?
 					message.erase(0, message.find_first_of(' ') + 1);
 
+					// TODO: make this a broadcast message
 					Message newMessage("SYSTEM", clientUsername + " is now known as " + message);
 					addMessage(newMessage);
 
+					setIsTyping(false);
+
 					clientUsername = message;
 				}
+				else
+				{
+					Message newMessage("SYSTEM", "Unkown command \"" + message.substr(1) + "\"");
+					addMessage(newMessage);
+				}
+
+				inputBoxText.setString("");
+				setIsTyping(false);
 			}
 			else
 			{

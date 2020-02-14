@@ -12,11 +12,11 @@ VisualMessage::VisualMessage(const Message& message, sf::Font* font) : message(m
 	content.setCharacterSize(16);
 	content.setFillColor(sf::Color(150, 150, 150));
 
-//	avatarTexture.loadFromFile("./resource/textures/avatars/" + message.author + ".png");
+	avatarTexture.loadFromFile("./resource/textures/avatars/" + message.author + ".png");
 
 	avatar.setFillColor(sf::Color(60, 60, 60));
 	avatar.setSize(sf::Vector2f(24, 24));
-	avatar.setTexture(&avatarTexture, true);
+	//avatar.setTexture(&avatarTexture, true);
 }
 
 VisualMessage::~VisualMessage()
@@ -49,7 +49,12 @@ sf::Vector2f VisualMessage::getSize() const
 void VisualMessage::setAvatarHidden(bool hideAvatar)
 {
 	avatarHidden = hideAvatar;
-	avatar.setSize(sf::Vector2f(0, 0));
+
+	if (hideAvatar)
+		avatar.setSize(sf::Vector2f(0, 0));
+	else
+		avatar.setSize(sf::Vector2f(24, 24));
+
 	setPosition(getPosition());
 }
 

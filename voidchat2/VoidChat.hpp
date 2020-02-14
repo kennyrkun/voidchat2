@@ -1,6 +1,8 @@
 #ifndef VOIDCHAT_CLIENT_HPP
 #define VOIDCHAT_CLIENT_HPP
 
+#include "Notification.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
@@ -8,7 +10,7 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include <map>
+#include <unordered_map>
 
 #define CVERSION "2.5.0"
 
@@ -52,33 +54,19 @@ private:
 	sf::View           scrollableView;
 	sf::View           mainView;
 
-	sf::SoundBuffer notificationSoundBuffer;
-	sf::SoundBuffer userJoinedSoundBuffer;
-	sf::SoundBuffer userLeftSoundBuffer;
-	sf::SoundBuffer userTimedoutSoundBuffer;
-	sf::SoundBuffer connectedSoundBuffer;
-	sf::SoundBuffer disconnectedSoundBuffer;
-	sf::SoundBuffer connectionLostBuffer;
-	sf::SoundBuffer errorSoundBuffer;
-	sf::Sound userJoinedSound;
-	sf::Sound userLeftSound;
-	sf::Sound userTimedoutSound;
-	sf::Sound notificationSound;
-	sf::Sound connectedSound;
-	sf::Sound disconnectedSound;
-	sf::Sound connectionLostSound;
-	sf::Sound errorSound;
+	std::unordered_map<std::string, Notification*> notifications;
 
 //	std::map<std::string, sf::Sound*> sounds;
 //	std::map<std::string, sf::SoundBuffer*> soundbuffers;
 
 	bool running;
 
+	int onNetworkIncoming();
+
 	int onSendMessage(const Message& message);
 	void onReceiveMessage(const Message& message);
 	int onStartTyping();
 	int onStopTyping();
-	int onNetworkIncoming();
 	int onTextEntered(sf::Event& event);
 	int onQuit(sf::Event& event);
 	int onSend(sf::Packet packet);
